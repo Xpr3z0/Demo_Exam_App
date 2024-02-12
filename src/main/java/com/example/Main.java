@@ -16,8 +16,6 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.setTitle("Авторизация");
         stage.show();
-
-
     }
 
     public static void main(String[] args) {
