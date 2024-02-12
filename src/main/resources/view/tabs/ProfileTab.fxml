@@ -7,31 +7,31 @@
 
 <BorderPane fx:id="profileTab" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.tabs.ProfileTabController">
     <left>
-        <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="400.0" spacing="21.0" BorderPane.alignment="CENTER">
+        <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="400.0" spacing="24.0" BorderPane.alignment="CENTER">
             <children>
                 <Label text="Фамилия">
                     <font>
-                        <Font size="14.0" />
+                        <Font name="Arial" size="14.0" />
                     </font>
                 </Label>
                 <Label layoutX="340.0" layoutY="250.0" text="Имя">
                     <font>
-                        <Font size="14.0" />
+                        <Font name="Arial" size="14.0" />
                     </font>
                 </Label>
                 <Label layoutX="366.0" layoutY="269.0" text="Отчество">
                     <font>
-                        <Font size="14.0" />
+                        <Font name="Arial" size="14.0" />
                     </font>
                 </Label>
                 <Label layoutX="339.0" layoutY="288.0" text="Номер телефона">
                     <font>
-                        <Font size="14.0" />
+                        <Font name="Arial" size="14.0" />
                     </font>
                 </Label>
                 <Label layoutX="297.0" layoutY="307.0" text="Дополнительная информация">
                     <font>
-                        <Font size="14.0" />
+                        <Font name="Arial" size="14.0" />
                     </font>
                 </Label>
             </children>
@@ -39,7 +39,7 @@
                 <Insets right="20.0" />
             </padding>
             <BorderPane.margin>
-                <Insets top="100.0" />
+                <Insets top="103.0" />
             </BorderPane.margin></VBox>
     </left>
     <right>
