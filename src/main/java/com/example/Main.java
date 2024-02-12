@@ -7,11 +7,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.util.Locale;
 
-/**
- * Вариант 1 – Приложение для учета деятельности аптеки:
- * поступление и реализация лекарств.
- */
-
 public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
