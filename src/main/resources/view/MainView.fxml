@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<TabPane xmlns="http://javafx.com/javafx/17.0.2-ea"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="com.example.controller.dialogs.DialogAddRequestController"
+         prefHeight="600.0"
+         prefWidth="800.0"
+         tabClosingPolicy="UNAVAILABLE"
+         tabMinHeight="30.0"
+         tabMinWidth="180.0"
+         BorderPane.alignment="CENTER">
+
+    <Tab text="Заявки">
+        <content>
+            <fx:include fx:id="requestsTab" source="tabs/RequestsTab.fxml"/>
+        </content>
+    </Tab>
+    <Tab text="Новая заявка">
+        <content>
+            <fx:include fx:id="newRequestTab" source="tabs/NewRequestTab.fxml"/>
+        </content>
+    </Tab>
+    <Tab text="Настройки">
+        <content>
+            <fx:include fx:id="settingsTab" source="tabs/SettingsTab.fxml"/>
+        </content>
+    </Tab>
+    <Tab text="Профиль">
+        <content>
+            <fx:include fx:id="profileTab" source="tabs/ProfileTab.fxml"/>
+        </content>
+    </Tab>
+</TabPane>
