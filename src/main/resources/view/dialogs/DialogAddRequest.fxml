@@ -1,29 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.dialogs.DialogAddRequestController">
-   <top>
-      <GridPane BorderPane.alignment="CENTER">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="50.0" vgrow="ALWAYS" />
-        </rowConstraints>
-         <children>
-            <Button alignment="CENTER" mnemonicParsing="false" prefHeight="400.0" prefWidth="400.0" text="Заявки" />
-            <Button alignment="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="400.0" prefWidth="400.0" text="Новая заявка" GridPane.columnIndex="1" />
-            <Button alignment="CENTER" layoutX="110.0" layoutY="10.0" mnemonicParsing="false" prefHeight="400.0" prefWidth="400.0" text="Настройки" GridPane.columnIndex="2" />
-            <Button alignment="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="400.0" prefWidth="400.0" text="Профиль" GridPane.columnIndex="3" />
-         </children>
-      </GridPane>
-   </top>
-   <bottom>
-      <BorderPane prefHeight="550.0" prefWidth="800.0" BorderPane.alignment="CENTER" />
-   </bottom>
+   <center>
+      <TabPane prefHeight="600.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0" tabMinWidth="180.0" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab text="Заявки" />
+          <Tab text="Новая заявка" />
+          <Tab text="Настройки" />
+          <Tab text="Профиль">
+              <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                  <left>
+                     <VBox alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="400.0" spacing="21.0" BorderPane.alignment="CENTER">
+                        <children>
+                           <Label text="Фамилия">
+                              <font>
+                                 <Font size="14.0" />
+                              </font>
+                           </Label>
+                           <Label layoutX="340.0" layoutY="250.0" text="Имя">
+                              <font>
+                                 <Font size="14.0" />
+                              </font>
+                           </Label>
+                           <Label layoutX="366.0" layoutY="269.0" text="Отчество">
+                              <font>
+                                 <Font size="14.0" />
+                              </font>
+                           </Label>
+                           <Label layoutX="339.0" layoutY="288.0" text="Номер телефона">
+                              <font>
+                                 <Font size="14.0" />
+                              </font>
+                           </Label>
+                           <Label layoutX="297.0" layoutY="307.0" text="Дополнительная информация">
+                              <font>
+                                 <Font size="14.0" />
+                              </font>
+                           </Label>
+                        </children>
+                        <padding>
+                           <Insets right="20.0" />
+                        </padding>
+                        <BorderPane.margin>
+                           <Insets top="100.0" />
+                        </BorderPane.margin></VBox>
+                  </left>
+                  <right>
+                     <VBox fillWidth="false" prefHeight="200.0" prefWidth="400.0" spacing="14.0" BorderPane.alignment="CENTER">
+                        <children>
+                           <TextField prefWidth="220.0" />
+                           <TextField layoutX="30.0" layoutY="246.0" prefWidth="220.0" />
+                           <TextField layoutX="30.0" layoutY="224.0" prefWidth="220.0" />
+                           <TextField layoutX="30.0" layoutY="246.0" prefWidth="220.0" />
+                           <TextArea prefHeight="151.0" prefWidth="289.0" />
+                        </children>
+                        <padding>
+                           <Insets left="20.0" />
+                        </padding>
+                        <BorderPane.margin>
+                           <Insets top="100.0" />
+                        </BorderPane.margin></VBox>
+                  </right>
+                  <bottom>
+                     <Button mnemonicParsing="false" text="Сохранить изменения" BorderPane.alignment="CENTER">
+                        <BorderPane.margin>
+                           <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                        </BorderPane.margin>
+                     </Button>
+                  </bottom></BorderPane>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </center>
 </BorderPane>
