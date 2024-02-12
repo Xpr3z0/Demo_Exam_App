@@ -30,11 +30,11 @@ public class LoginController {
             ClientPostgreSQL jdbcClient = ClientPostgreSQL.getInstance();
             System.out.println(jdbcClient.getLogin());
             if (jdbcClient.accessToDB(login, password)) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BD.fxml"));
-                BDController dialogAddController = new BDController();
-                loader.setController(dialogAddController);
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
+                MainViewController mainViewController = new MainViewController();
+                loader.setController(mainViewController);
                 Stage stage = new Stage();
-                stage.setTitle("Таблица");
+                stage.setTitle("Demo Exam App");
                 stage.setScene(new Scene(loader.load()));
                 stage.show();
                 ((Stage) btnLogin.getScene().getWindow()).close();
@@ -43,7 +43,7 @@ public class LoginController {
                 new Alert(Alert.AlertType.ERROR, "Подключение не произошло.\nПроверьте логин или пароль.").showAndWait();
             }
         } catch (NullPointerException e) {
-            new Alert(Alert.AlertType.ERROR, "Не найдена view BD.fxml").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Не найдена view MainView.fxml").showAndWait();
             e.printStackTrace();
             System.exit(-1);
         } catch (IOException e) {
