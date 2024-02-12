@@ -17,7 +17,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import com.example.bdclient.ClientPostgreSQL;
-import com.example.bdclient.JDBCClient;
 
 import java.io.IOException;
 import java.net.URL;
@@ -32,7 +31,7 @@ public class BDController implements Initializable {
     public ChoiceBox<String> tableChoice;
     public TableView tableView;
     public Label lblLogin;
-    private JDBCClient jdbcClient;
+    private ClientPostgreSQL jdbcClient;
     private String selectedTable = "";
     private List<String> columnNames;
     public Button addNewBtn;

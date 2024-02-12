@@ -1,6 +1,5 @@
 package com.example.controller;
 
-import com.example.bdclient.JDBCClient;
 import com.example.bdclient.ClientPostgreSQL;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,7 +27,7 @@ public class LoginController {
             if (login.isEmpty() || password.isEmpty()) {
                 throw new Exception("Укажите логин или пароль!");
             }
-            JDBCClient jdbcClient = ClientPostgreSQL.getInstance();
+            ClientPostgreSQL jdbcClient = ClientPostgreSQL.getInstance();
             System.out.println(jdbcClient.getLogin());
             if (jdbcClient.accessToDB(login, password)) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BD.fxml"));

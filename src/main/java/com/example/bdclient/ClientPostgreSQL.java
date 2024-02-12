@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class ClientPostgreSQL implements JDBCClient {
+public class ClientPostgreSQL {
     private static ClientPostgreSQL instance;
     private Properties dbProperties;
     private String login = null;
@@ -53,7 +53,6 @@ public class ClientPostgreSQL implements JDBCClient {
         return null;
     }
 
-    @Override
     public boolean accessToDB(String login, String password) {
         Connection connection = null;
         try {
@@ -70,12 +69,10 @@ public class ClientPostgreSQL implements JDBCClient {
     }
 
 
-    @Override
     public String getLogin() {
         return login;
     }
 
-    @Override
     public List<String> getTableNames() {
         Connection connection = null;
         try {
@@ -115,7 +112,6 @@ public class ClientPostgreSQL implements JDBCClient {
     }
 
 
-    @Override
     public ResultSet getTable(String selectedTable) {
         Connection connection = null;
         String orderBy = "";
@@ -178,7 +174,6 @@ public class ClientPostgreSQL implements JDBCClient {
     }
 
 
-    @Override
     public boolean updateTable(String selectedTable, String columnChangeName, String newRecord, String columnSearchName, String columnSearch) {
         Connection connection = null;
         try {
@@ -202,7 +197,6 @@ public class ClientPostgreSQL implements JDBCClient {
     }
 
 
-    @Override
     public boolean deleteRowTable(String selectedTable, String columnSearchName, String columnSearch) {
         Connection connection = null;
         try {
@@ -225,7 +219,6 @@ public class ClientPostgreSQL implements JDBCClient {
     }
 
 
-    @Override
     public boolean simpleQuery(String selectedTable, String sql) {
         Connection connection = null;
         try {
