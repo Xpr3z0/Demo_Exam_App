@@ -23,59 +23,60 @@
     </bottom>
     <center>
         <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-            <top>
-                <GridPane hgap="20.0" prefHeight="160.0" vgap="20.0" BorderPane.alignment="CENTER">
-                    <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="335.0" minWidth="220.0" prefWidth="284.0" />
-                        <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" maxWidth="405.0" minWidth="220.0" prefWidth="396.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                    <BorderPane.margin>
-                        <Insets top="60.0" />
-                    </BorderPane.margin>
-                    <children>
-                        <Label alignment="TOP_LEFT" text="ФИО клиента" />
-                        <Label text="Телефон клиента" GridPane.rowIndex="1" />
-                        <Label text="Серийный номер" GridPane.rowIndex="2" />
-                        <Label text="Тип оборудования" GridPane.rowIndex="3" />
-                        <TextField GridPane.columnIndex="1" />
-                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                    </children>
-                </GridPane>
-            </top>
-            <center>
-                <GridPane hgap="20.0" vgap="20.0" BorderPane.alignment="CENTER">
-                    <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="417.0" minWidth="10.0" prefWidth="316.0" />
-                        <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" maxWidth="490.0" minWidth="10.0" prefWidth="429.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                    <children>
-                        <Label text="Описание проблемы" GridPane.valignment="TOP">
-                            <GridPane.margin>
-                                <Insets />
-                            </GridPane.margin></Label>
-                        <Label text="Примечания" GridPane.rowIndex="1" GridPane.valignment="TOP">
-                            <GridPane.margin>
-                                <Insets />
-                            </GridPane.margin></Label>
-                        <TextField alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="231.0" GridPane.columnIndex="1" />
-                        <TextField alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="231.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    </children>
-                    <BorderPane.margin>
-                        <Insets top="20.0" />
-                    </BorderPane.margin>
-                </GridPane>
-            </center></BorderPane>
+         <center>
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="20.0" BorderPane.alignment="CENTER">
+               <children>
+                      <GridPane alignment="CENTER" hgap="20.0" prefHeight="160.0" vgap="20.0">
+                          <columnConstraints>
+                              <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="335.0" minWidth="220.0" prefWidth="284.0" />
+                              <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" maxWidth="405.0" minWidth="220.0" prefWidth="396.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                          <children>
+                              <Label alignment="TOP_LEFT" text="ФИО клиента" />
+                              <Label text="Телефон клиента" GridPane.rowIndex="1" />
+                              <Label text="Серийный номер" GridPane.rowIndex="2" />
+                              <Label text="Тип оборудования" GridPane.rowIndex="3" />
+                              <TextField GridPane.columnIndex="1" />
+                              <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                          </children>
+                      </GridPane>
+                      <GridPane alignment="CENTER" hgap="20.0" vgap="20.0">
+                          <columnConstraints>
+                              <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="417.0" minWidth="10.0" prefWidth="354.0" />
+                              <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" maxWidth="490.0" minWidth="10.0" prefWidth="425.59999999999997" />
+                          </columnConstraints>
+                          <rowConstraints>
+                              <RowConstraints fillHeight="false" maxHeight="-Infinity" minHeight="10.0" prefHeight="100.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                          <children>
+                              <Label text="Описание проблемы" GridPane.valignment="TOP">
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                        </Label>
+                              <Label text="Примечания" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                        </Label>
+                              <TextField alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="231.0" GridPane.columnIndex="1" GridPane.valignment="TOP" />
+                              <TextField alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="231.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+                          </children>
+                      </GridPane>
+               </children>
+               <BorderPane.margin>
+                  <Insets top="60.0" />
+               </BorderPane.margin>
+            </VBox>
+         </center></BorderPane>
     </center>
 </BorderPane>
