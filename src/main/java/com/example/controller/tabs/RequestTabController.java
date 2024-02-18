@@ -33,8 +33,6 @@ public class RequestTabController implements Initializable {
                     while (resultSet.next()) {
                         // Добавляем элементы в ListView
                         String requestNumber = resultSet.getString("request_number");
-//                        String description = resultSet.getString("description");
-//                        String clientName = resultSet.getString("client_name");
 
                         repairRequestListView.getItems().add(requestNumber);
                         repairRequestListView.setCellFactory(param -> {
@@ -51,7 +49,6 @@ public class RequestTabController implements Initializable {
                                             Parent root = loader.load();
                                             ListItemController controller = loader.getController();
                                             controller.setRequestNumber(Integer.parseInt(item));
-//                                            controller.updateFromDatabase(item);  // Вызываем метод обновления из базы данных
                                             setGraphic(root);
                                         } catch (IOException e) {
                                             e.printStackTrace();
@@ -61,38 +58,6 @@ public class RequestTabController implements Initializable {
                                 }
                             };
                         });
-
-//                        repairRequestListView.setCellFactory(param -> {
-//                            try {
-//                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
-//                                Parent root = loader.load();
-//                                ListItemController controller = loader.getController();
-////                                controller.setRequestNumber(requestNumber);
-////                                controller.setDescription(description);
-////                                controller.setClientName(clientName);
-//                                return new ListCell<String>() {
-//                                    @Override
-//                                    protected void updateItem(String item, boolean empty) {
-//                                        super.updateItem(item, empty);
-//
-//                                        if (item == null || empty) {
-//                                            setGraphic(null);
-//                                        } else {
-//                                            controller.setRequestNumber(item);
-//                                            controller.setDescription(description);
-//                                            controller.setClientName(clientName);
-//                                            // Дополнительно настройте другие поля с использованием данных из БД, если необходимо
-//                                            setGraphic(root);
-//                                        }
-//                                    }
-//                                };
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                                return null;
-//                            }
-//                        });
-
-
                     }
                 }
             }
