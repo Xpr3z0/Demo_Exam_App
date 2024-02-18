@@ -3,6 +3,7 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <BorderPane prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.tabs.NewRequestTabController">
     <bottom>
@@ -38,14 +39,38 @@
                               <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                           <children>
-                              <Label alignment="TOP_LEFT" text="ФИО клиента" />
-                              <Label text="Телефон клиента" GridPane.rowIndex="1" />
-                              <Label text="Серийный номер" GridPane.rowIndex="2" />
-                              <Label text="Тип оборудования" GridPane.rowIndex="3" />
-                              <TextField GridPane.columnIndex="1" />
-                              <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                              <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                              <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <Label alignment="TOP_LEFT" text="ФИО клиента">
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font></Label>
+                              <Label text="Телефон клиента" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font></Label>
+                              <Label text="Серийный номер" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font></Label>
+                              <Label text="Тип оборудования" GridPane.rowIndex="3">
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font></Label>
+                              <TextField prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                              <TextField prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                              <TextField prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                              <TextField prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
                           </children>
                       </GridPane>
                       <GridPane alignment="CENTER" hgap="20.0" vgap="20.0">
@@ -62,14 +87,26 @@
                                   <GridPane.margin>
                                       <Insets />
                                   </GridPane.margin>
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font>
                         </Label>
                               <Label text="Примечания" GridPane.rowIndex="1" GridPane.valignment="TOP">
                                   <GridPane.margin>
                                       <Insets />
                                   </GridPane.margin>
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font>
                         </Label>
-                              <TextField alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="231.0" GridPane.columnIndex="1" GridPane.valignment="TOP" />
-                              <TextField alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="231.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+                              <TextField alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                              <TextField alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
                           </children>
                       </GridPane>
                </children>

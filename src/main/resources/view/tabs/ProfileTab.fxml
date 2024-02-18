@@ -23,22 +23,22 @@
                <children>
                       <Label alignment="CENTER_RIGHT" text="Фамилия" GridPane.halignment="RIGHT">
                           <font>
-                              <Font name="Arial" size="18.0" />
+                              <Font name="Arial" size="16.0" />
                           </font>
                       </Label>
                       <Label text="Имя" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
                           <font>
-                              <Font name="Arial" size="18.0" />
+                              <Font name="Arial" size="16.0" />
                           </font>
                       </Label>
                       <Label text="Отчество" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
                           <font>
-                              <Font name="Arial" size="18.0" />
+                              <Font name="Arial" size="16.0" />
                           </font>
                       </Label>
                       <Label text="Номер телефона" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
                           <font>
-                              <Font name="Arial" size="18.0" />
+                              <Font name="Arial" size="16.0" />
                           </font>
                       </Label>
                       <TextField prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" />
@@ -58,7 +58,7 @@
                         <children>
                             <Label layoutX="297.0" layoutY="307.0" text="Дополнительная информация">
                                 <font>
-                                    <Font name="Arial" size="18.0" />
+                                    <Font name="Arial" size="16.0" />
                                 </font>
                            <VBox.margin>
                               <Insets top="5.0" />

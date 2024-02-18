@@ -40,7 +40,7 @@ public class ListItemController {
     }
 
     public void setClientName(String clientName) {
-        clientNameLabel.setText(clientName);
+        clientNameLabel.setText("Клиент: " + clientName);
     }
 
     @FXML
