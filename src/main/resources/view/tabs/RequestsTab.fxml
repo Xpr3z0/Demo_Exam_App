@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="600.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.tabs.RequestTabController">
    <center>
-      <SplitPane dividerPositions="0.5" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.5" minHeight="200.0" minWidth="200.0" BorderPane.alignment="CENTER">
          <items>
-            <ScrollPane prefHeight="200.0" prefWidth="200.0" />
+            <ListView fx:id="repairRequestListView" prefHeight="200.0" prefWidth="200.0" />
             <VBox prefHeight="200.0" prefWidth="100.0" />
          </items>
       </SplitPane>
    </center>
    <bottom>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" text="Button" />
-            <Button mnemonicParsing="false" text="Button" />
+            <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="100.0" text="Button" />
+            <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="100.0" text="Button" />
          </children>
+         <BorderPane.margin>
+            <Insets bottom="20.0" top="20.0" />
+         </BorderPane.margin>
       </HBox>
    </bottom>
 </BorderPane>
