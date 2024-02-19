@@ -9,11 +9,11 @@
     <bottom>
         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
             <children>
-                <Button fx:id="createRequestBtn" mnemonicParsing="false" text="Создать заявку">
+                <Button fx:id="createRequestBtn" mnemonicParsing="false" onAction="#onActionAdd" text="Создать заявку">
                     <padding>
                         <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                     </padding></Button>
-                <Button fx:id="clearFieldsBtn" mnemonicParsing="false" text="Очистить">
+                <Button fx:id="clearFieldsBtn" mnemonicParsing="false" onAction="#onActionClear" text="Очистить">
                     <padding>
                         <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                     </padding></Button>
@@ -99,11 +99,11 @@
                               <Font name="Arial" size="16.0" />
                            </font>
                         </Label>
-                              <TextField fx:id="descriptionTextArea" alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.valignment="TOP">
+                              <TextField fx:id="descriptionTextField" alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.valignment="TOP">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>
-                              <TextField fx:id="notesTextArea" alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                              <TextField fx:id="notesTextField" alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>

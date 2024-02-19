@@ -240,6 +240,27 @@ public class ClientPostgreSQL {
         }
     }
 
+    public boolean simpleQuery(String sql) {
+        Connection connection = null;
+        try {
+            String query = String.format(sql, dbSchema, "public");
+            connection = DriverManager.getConnection(dbUrl, login, password);
+            PreparedStatement statement = connection.prepareStatement(query);
+            return statement.executeUpdate() != -1 ? true : false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 
     private Object convertStringToInteger(String str){
         try {
