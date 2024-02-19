@@ -18,7 +18,6 @@ import com.example.bdclient.ClientPostgreSQL;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class DialogAddDrugsController implements Initializable {
@@ -78,7 +77,7 @@ public class DialogAddDrugsController implements Initializable {
 
     public void showTable() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BD.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/dialogs/BD.fxml"));
             BDController dialogAddController = new BDController(selectedTable);
             loader.setController(dialogAddController);
             Stage stage = new Stage();

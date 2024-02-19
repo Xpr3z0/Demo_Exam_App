@@ -4,7 +4,6 @@ import com.example.bdclient.ClientPostgreSQL;
 import com.example.controller.BDController;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -12,13 +11,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class DialogAddEmployeesController implements Initializable {
@@ -68,7 +65,7 @@ public class DialogAddEmployeesController implements Initializable {
 
     private void showTable() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BD.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/dialogs/BD.fxml"));
             BDController dialogAddController = new BDController(selectedTable);
             loader.setController(dialogAddController);
             Stage stage = new Stage();

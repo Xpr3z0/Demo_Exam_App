@@ -204,7 +204,7 @@ public class DialogAddRecordsController implements Initializable {
 
     private void showTable() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/BD.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/dialogs/BD.fxml"));
             BDController dialogAddController = new BDController(selectedTable);
             loader.setController(dialogAddController);
             Stage stage = new Stage();
