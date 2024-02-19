@@ -99,11 +99,11 @@
                               <Font name="Arial" size="16.0" />
                            </font>
                         </Label>
-                              <TextField fx:id="descriptionTextField" alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.valignment="TOP">
+                              <TextField fx:id="descriptionTextField" alignment="TOP_LEFT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.valignment="TOP">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>
-                              <TextField fx:id="notesTextField" alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                              <TextField fx:id="notesTextField" alignment="TOP_LEFT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>
