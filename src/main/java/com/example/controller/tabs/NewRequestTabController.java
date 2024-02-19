@@ -37,13 +37,17 @@ public class NewRequestTabController implements Initializable {
 
     }
 
-    public void onActionClear(ActionEvent event) {
+    private void clearFields() {
         clientNameField.clear();
         clientPhoneField.clear();
         serialNumberField.clear();
         equipTypeField.clear();
         descriptionTextField.clear();
         notesTextField.clear();
+    }
+
+    public void onActionClear(ActionEvent event) {
+        clearFields();
     }
     
     @FXML
@@ -65,6 +69,7 @@ public class NewRequestTabController implements Initializable {
             preparedStatement.close();
 
             showInfoAlert("Запись добавлена успешно.");
+            clearFields();
 
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
