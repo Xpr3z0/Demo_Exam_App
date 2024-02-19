@@ -73,4 +73,11 @@
          </items>
       </SplitPane>
    </center>
+   <bottom>
+      <Button fx:id="refreshListBtn" mnemonicParsing="false" onAction="#onActionRefresh" prefHeight="35.0" prefWidth="130.0" text="Обновить список" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </BorderPane.margin>
+      </Button>
+   </bottom>
 </BorderPane>

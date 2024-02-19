@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
@@ -25,6 +26,7 @@ public class RequestTabController implements Initializable {
     public TextField equipSerialField;
     public TextArea notesTextArea;
     public ScrollPane moreInfoScrollPane;
+    public Button refreshListBtn;
 
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
     private final String LOGIN = "postgres";
@@ -90,6 +92,12 @@ public class RequestTabController implements Initializable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    public void onActionRefresh(ActionEvent event) {
+        repairRequestListView.getItems().clear();
+        loadRepairRequests();
     }
 
 
