@@ -5,15 +5,15 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.tabs.NewRequestTabController">
+<BorderPane fx:id="root" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.tabs.NewRequestTabController">
     <bottom>
         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
             <children>
-                <Button fx:id="button" mnemonicParsing="false" text="Отправить">
+                <Button fx:id="createRequestBtn" mnemonicParsing="false" text="Создать заявку">
                     <padding>
                         <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                     </padding></Button>
-                <Button mnemonicParsing="false" text="Назад">
+                <Button fx:id="clearFieldsBtn" mnemonicParsing="false" text="Очистить">
                     <padding>
                         <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                     </padding></Button>
@@ -55,19 +55,19 @@
                            <font>
                               <Font name="Arial" size="16.0" />
                            </font></Label>
-                              <TextField prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1">
+                              <TextField fx:id="clientNameField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>
-                              <TextField prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                              <TextField fx:id="clientPhoneField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>
-                              <TextField prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                              <TextField fx:id="serialNumberField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>
-                              <TextField prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                              <TextField fx:id="equipTypeField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>
@@ -99,11 +99,11 @@
                               <Font name="Arial" size="16.0" />
                            </font>
                         </Label>
-                              <TextField alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.valignment="TOP">
+                              <TextField fx:id="descriptionTextArea" alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.valignment="TOP">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>
-                              <TextField alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                              <TextField fx:id="notesTextArea" alignment="CENTER_RIGHT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextField>
