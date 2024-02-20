@@ -1,5 +1,6 @@
 package com.example.controller.tabs;
 
+import com.example.bdclient.ClientPostgreSQL;
 import com.example.controller.ListItemController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,6 +13,7 @@ import javafx.scene.layout.AnchorPane;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class RequestTabController implements Initializable {
@@ -27,6 +29,7 @@ public class RequestTabController implements Initializable {
     public TextArea notesTextArea;
     public ScrollPane moreInfoScrollPane;
     public Button refreshListBtn;
+    private ClientPostgreSQL clientPostgreSQL;
 
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
     private final String LOGIN = "postgres";
@@ -100,6 +103,19 @@ public class RequestTabController implements Initializable {
         loadRepairRequests();
     }
 
+
+    public void onActionDelete(ActionEvent actionEvent) {
+        int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
+        if (selectedIndex != -1) {
+            String columnSearch = repairRequestListView.getItems().get(selectedIndex);
+//            String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
+            String columnSearchName = "request_number";
+            String selectedTable = "repair_requests";
+            repairRequestListView.getItems().remove(selectedIndex);
+            clientPostgreSQL = ClientPostgreSQL.getInstance();
+            clientPostgreSQL.deleteRowTable(selectedTable, columnSearchName, columnSearch);
+        }
+    }
 
     private void showMoreInfo(int requestNumber) {
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {

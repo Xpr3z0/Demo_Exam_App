@@ -11,8 +11,8 @@ import java.util.Properties;
 public class ClientPostgreSQL {
     private static ClientPostgreSQL instance;
     private Properties dbProperties;
-    private String login = null;
-    private String password = null;
+    private String login = "postgres";
+    private String password = "root";
     private String dbUrl = null;
     private String dbSchema = null;
     Connection externalConnection = null;
