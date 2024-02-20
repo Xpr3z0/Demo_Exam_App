@@ -1,6 +1,7 @@
 package com.example.controller.tabs;
 
 import com.example.bdclient.ClientPostgreSQL;
+import com.example.controller.dialogs.MyAlert;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,7 +16,6 @@ import java.util.ResourceBundle;
 
 public class NewRequestTabController implements Initializable {
     public BorderPane root;
-
     public TextField clientNameField;
     public TextField clientPhoneField;
     public TextField serialNumberField;
@@ -24,7 +24,6 @@ public class NewRequestTabController implements Initializable {
     public TextField notesTextField;
     public Button createRequestBtn;
     public Button clearFieldsBtn;
-
     private ClientPostgreSQL clientPostgreSQL;
     private Connection connection = null;
 
@@ -68,12 +67,12 @@ public class NewRequestTabController implements Initializable {
 //            ClientPostgreSQL.getInstance().simpleQuery("public", resultStr);
             preparedStatement.close();
 
-            showInfoAlert("Запись добавлена успешно.");
+            MyAlert.showInfoAlert("Запись добавлена успешно.");
             clearFields();
 
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
-            showErrorAlert("Ошибка при добавлении записи.");
+            MyAlert.showErrorAlert("Ошибка при добавлении записи.");
         } finally {
             try {
                 connection.close();
@@ -81,21 +80,5 @@ public class NewRequestTabController implements Initializable {
                 e.printStackTrace();
             }
         }
-    }
-
-    private void showInfoAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Информация");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showErrorAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Ошибка");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

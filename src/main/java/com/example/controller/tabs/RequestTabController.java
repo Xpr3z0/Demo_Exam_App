@@ -2,6 +2,7 @@ package com.example.controller.tabs;
 
 import com.example.bdclient.ClientPostgreSQL;
 import com.example.controller.ListItemController;
+import com.example.controller.dialogs.MyAlert;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,7 +31,6 @@ public class RequestTabController implements Initializable {
     public ScrollPane moreInfoScrollPane;
     public Button refreshListBtn;
     private ClientPostgreSQL clientPostgreSQL;
-
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
     private final String LOGIN = "postgres";
     private final String PASSWORD = "root";
@@ -114,6 +114,8 @@ public class RequestTabController implements Initializable {
             repairRequestListView.getItems().remove(selectedIndex);
             clientPostgreSQL = ClientPostgreSQL.getInstance();
             clientPostgreSQL.deleteRowTable(selectedTable, columnSearchName, columnSearch);
+            moreInfoScrollPane.setVisible(false);
+            MyAlert.showInfoAlert("Заявка успешно удалена");
         }
     }
 
