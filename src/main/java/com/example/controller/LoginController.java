@@ -24,6 +24,7 @@ public class LoginController implements Initializable {
     @FXML
     private PasswordField txtPassword;
     private final boolean autoLogin = true;
+    private String role;
     @FXML
     private void btnLoginAction(ActionEvent event) {
         String login = txtUsername.getText();
@@ -35,8 +36,9 @@ public class LoginController implements Initializable {
             ClientPostgreSQL jdbcClient = ClientPostgreSQL.getInstance();
             System.out.println(jdbcClient.getLogin());
             if (jdbcClient.accessToDB(login, password)) {
+//                role = "operator";
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
-                MainViewController mainViewController = new MainViewController();
+                MainViewController mainViewController = new MainViewController(role);
                 loader.setController(mainViewController);
                 Stage stage = new Stage();
                 stage.setTitle("Demo Exam App");
@@ -60,13 +62,14 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        role = "operator";
         autoLogin();
     }
 
     private void autoLogin() {
         if (autoLogin == true) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
-            MainViewController mainViewController = new MainViewController();
+            MainViewController mainViewController = new MainViewController(role);
             loader.setController(mainViewController);
             Stage stage = new Stage();
             stage.setTitle("Demo Exam App");

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane fx:id="root" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.tabs.NewRequestTabController">
+    <bottom>
+        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
+            <children>
+                <Button fx:id="createRequestBtn" mnemonicParsing="false" onAction="#onActionAdd" text="Создать заявку">
+                    <padding>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                    </padding></Button>
+                <Button fx:id="clearFieldsBtn" mnemonicParsing="false" onAction="#onActionClear" text="Очистить">
+                    <padding>
+                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                    </padding></Button>
+            </children>
+            <padding>
+                <Insets bottom="20.0" top="20.0" />
+            </padding></HBox>
+    </bottom>
+    <center>
+        <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <center>
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="20.0" BorderPane.alignment="CENTER">
+               <children>
+                      <GridPane alignment="CENTER" hgap="20.0" prefHeight="160.0" vgap="20.0">
+                          <columnConstraints>
+                              <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="335.0" minWidth="220.0" prefWidth="284.0" />
+                              <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" maxWidth="405.0" minWidth="220.0" prefWidth="396.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                          <children>
+                              <Label alignment="TOP_LEFT" text="ФИО клиента">
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font></Label>
+                              <Label text="Телефон клиента" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font></Label>
+                              <Label text="Серийный номер" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font></Label>
+                              <Label text="Тип оборудования" GridPane.rowIndex="3">
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font></Label>
+                              <TextField fx:id="clientNameField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                              <TextField fx:id="clientPhoneField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                              <TextField fx:id="serialNumberField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                              <TextField fx:id="equipTypeField" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                          </children>
+                      </GridPane>
+                      <GridPane alignment="CENTER" hgap="20.0" vgap="20.0">
+                          <columnConstraints>
+                              <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="417.0" minWidth="10.0" prefWidth="354.0" />
+                              <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" maxWidth="490.0" minWidth="10.0" prefWidth="425.59999999999997" />
+                          </columnConstraints>
+                          <rowConstraints>
+                              <RowConstraints fillHeight="false" maxHeight="-Infinity" minHeight="10.0" prefHeight="100.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                          <children>
+                              <Label text="Описание проблемы" GridPane.valignment="TOP">
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font>
+                        </Label>
+                              <Label text="Примечания" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                                  <GridPane.margin>
+                                      <Insets />
+                                  </GridPane.margin>
+                           <font>
+                              <Font name="Arial" size="16.0" />
+                           </font>
+                        </Label>
+                              <TextField fx:id="descriptionTextField" alignment="TOP_LEFT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                              <TextField fx:id="notesTextField" alignment="TOP_LEFT" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                           <font>
+                              <Font name="Arial" size="14.0" />
+                           </font></TextField>
+                          </children>
+                      </GridPane>
+               </children>
+               <BorderPane.margin>
+                  <Insets top="60.0" />
+               </BorderPane.margin>
+            </VBox>
+         </center></BorderPane>
+    </center>
+</BorderPane>
