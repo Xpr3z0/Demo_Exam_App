@@ -33,8 +33,10 @@ public class AllRequestsTabController implements Initializable {
     public ChoiceBox<String> stateChoice;
     public ChoiceBox<String> repairerChoice;
     public ChoiceBox<String> priorityChoice;
-    public DatePicker registerDatePicker;
-    public DatePicker finishDatePicker;
+//    public DatePicker registerDatePicker;
+//    public DatePicker finishDatePicker;
+    public TextField registerDateTF;
+    public TextField finishDateTF;
     public Button refreshListBtn;
     private ClientPostgreSQL clientPostgreSQL;
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
@@ -50,8 +52,6 @@ public class AllRequestsTabController implements Initializable {
         loadRepairRequests();
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");
-        registerDatePicker = new DatePicker();
-        finishDatePicker = new DatePicker();
 
         // TODO: Сделать подгрузку списка исполнителей
         repairerChoice.getItems().addAll("Исполнитель1", "Исполнитель2", "Исполнитель3", "Исполнитель4");
@@ -133,15 +133,13 @@ public class AllRequestsTabController implements Initializable {
             preparedStatement.setString(5, stateChoice.getValue());
             preparedStatement.setString(6, repairerChoice.getValue());
             preparedStatement.setString(7, priorityChoice.getValue());
-            preparedStatement.setDate(8, Date.valueOf(registerDatePicker.getValue()));
-            preparedStatement.setDate(9, Date.valueOf(finishDatePicker.getValue()));
+            preparedStatement.setDate(8, Date.valueOf(registerDateTF.getText()));
+            preparedStatement.setDate(9, Date.valueOf(finishDateTF.getText()));
             preparedStatement.setInt(10, currentRequestNumber);
             preparedStatement.executeUpdate();
 
 
-            MyAlert.showInfoAlert("Заявка успешно зарегистрирована.");
-            moreInfoScrollPane.setVisible(false);
-            repairRequestListView.getItems().remove(repairRequestListView.getSelectionModel().getSelectedIndex());
+            MyAlert.showInfoAlert("Информация по заявке обновлена успешно.");
 
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
@@ -189,49 +187,8 @@ public class AllRequestsTabController implements Initializable {
                         priorityChoice.setValue(resultSet.getString("priority"));
                         repairerChoice.setValue(resultSet.getString("repairer"));
 
-//                        Date registerDate = resultSet.getDate("register_date");
-//                        System.out.println(registerDate.toLocalDate());
-//                        if (registerDate != null) {
-//                            registerDatePicker.setValue(registerDate.toLocalDate());
-//                        } else {
-//                            registerDatePicker.setValue(null); // Если дата null, установите значение DatePicker в null
-//                        }
-//
-//                        Date finishDate = resultSet.getDate("finish_date");
-//                        System.out.println(finishDate);
-//                        if (finishDate != null) {
-//                            finishDatePicker.setValue(finishDate.toLocalDate());
-//                        } else {
-//                            finishDatePicker.setValue(null); // Если дата null, установите значение DatePicker в null
-//                        }
-
-                        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
-                            String pattern = "yyyy-MM-dd";
-                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(pattern);
-                            @Override
-                            public String toString(LocalDate date) {
-                                if (date != null) {
-                                    return dateFormatter.format(date);
-                                } else {
-                                    return "";
-                                }
-                            }
-
-                            @Override
-                            public LocalDate fromString(String string) {
-                                if (string != null && !string.isEmpty()) {
-                                    return LocalDate.parse(string, dateFormatter);
-                                } else {
-                                    return null;
-                                }
-                            }
-                        };
-
-                        registerDatePicker.setConverter(converter);
-                        finishDatePicker.setConverter(converter);
-
-                        registerDatePicker.setValue(resultSet.getDate("register_date").toLocalDate());
-                        finishDatePicker.setValue(resultSet.getDate("finish_date").toLocalDate());
+                        registerDateTF.setText(resultSet.getDate("register_date").toString());
+                        finishDateTF.setText(resultSet.getDate("finish_date").toString());
 
                         moreInfoScrollPane.setVisible(true);
                     }

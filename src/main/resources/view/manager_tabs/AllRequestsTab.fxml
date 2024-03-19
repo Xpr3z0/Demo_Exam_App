@@ -90,14 +90,14 @@
                               <Font name="Arial Bold" size="14.0" />
                            </font>
                         </Label>
-                        <DatePicker fx:id="registerDatePicker" editable="false" />
+                        <TextField fx:id="registerDateTF" disable="true" />
                         <Separator layoutX="30.0" layoutY="872.0" prefWidth="200.0" />
                         <Label layoutX="30.0" layoutY="999.0" text="Расчётная дата выполнения заявки">
                            <font>
                               <Font name="Arial Bold" size="14.0" />
                            </font>
                         </Label>
-                        <DatePicker fx:id="finishDatePicker" layoutX="30.0" layoutY="1035.0" />
+                        <TextField fx:id="finishDateTF" />
                         <Separator layoutX="30.0" layoutY="976.0" prefWidth="200.0" />
                         <HBox alignment="CENTER" spacing="20.0">
                            <children>
