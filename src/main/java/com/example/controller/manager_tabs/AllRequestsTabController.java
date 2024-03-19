@@ -9,13 +9,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
-public class NewRequestsTabController implements Initializable {
+public class AllRequestsTabController implements Initializable {
 
     @FXML
     private ListView<String> repairRequestListView;
@@ -27,8 +30,10 @@ public class NewRequestsTabController implements Initializable {
     public TextField equipSerialField;
     public TextArea notesTextArea;
     public ScrollPane moreInfoScrollPane;
+    public ChoiceBox<String> stateChoice;
     public ChoiceBox<String> repairerChoice;
     public ChoiceBox<String> priorityChoice;
+    public DatePicker registerDatePicker;
     public DatePicker finishDatePicker;
     public Button refreshListBtn;
     private ClientPostgreSQL clientPostgreSQL;
@@ -44,6 +49,9 @@ public class NewRequestsTabController implements Initializable {
         moreInfoScrollPane.setVisible(false);
         loadRepairRequests();
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
+        stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");
+        registerDatePicker = new DatePicker();
+        finishDatePicker = new DatePicker();
 
         // TODO: Сделать подгрузку списка исполнителей
         repairerChoice.getItems().addAll("Исполнитель1", "Исполнитель2", "Исполнитель3", "Исполнитель4");
@@ -64,7 +72,8 @@ public class NewRequestsTabController implements Initializable {
         // и получения данных о заявках на ремонт
 
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT request_number FROM repair_requests WHERE state = 'Новая' ORDER BY request_number";
+            String query = "SELECT request_number FROM repair_requests WHERE state != 'Новая' ORDER BY request_number";
+
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -111,7 +120,7 @@ public class NewRequestsTabController implements Initializable {
     }
 
 
-    public void onActionRegister(ActionEvent event) {
+    public void onActionSave(ActionEvent event) {
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
             PreparedStatement preparedStatement = connection.prepareStatement(
@@ -121,10 +130,10 @@ public class NewRequestsTabController implements Initializable {
             preparedStatement.setString(2, equipTypeField.getText());
             preparedStatement.setString(3, descriptionTextArea.getText());
             preparedStatement.setString(4, notesTextArea.getText());
-            preparedStatement.setString(5, "В работе");
+            preparedStatement.setString(5, stateChoice.getValue());
             preparedStatement.setString(6, repairerChoice.getValue());
             preparedStatement.setString(7, priorityChoice.getValue());
-            preparedStatement.setDate(8, new java.sql.Date(System.currentTimeMillis()));
+            preparedStatement.setDate(8, Date.valueOf(registerDatePicker.getValue()));
             preparedStatement.setDate(9, Date.valueOf(finishDatePicker.getValue()));
             preparedStatement.setInt(10, currentRequestNumber);
             preparedStatement.executeUpdate();
@@ -176,6 +185,53 @@ public class NewRequestsTabController implements Initializable {
                         clientPhoneLabel.setText("Телефон: " + resultSet.getString("client_phone"));
                         equipSerialField.setText(resultSet.getString("equipment_serial_number"));
                         notesTextArea.setText(resultSet.getString("notes"));
+                        stateChoice.setValue(resultSet.getString("state"));
+                        priorityChoice.setValue(resultSet.getString("priority"));
+                        repairerChoice.setValue(resultSet.getString("repairer"));
+
+//                        Date registerDate = resultSet.getDate("register_date");
+//                        System.out.println(registerDate.toLocalDate());
+//                        if (registerDate != null) {
+//                            registerDatePicker.setValue(registerDate.toLocalDate());
+//                        } else {
+//                            registerDatePicker.setValue(null); // Если дата null, установите значение DatePicker в null
+//                        }
+//
+//                        Date finishDate = resultSet.getDate("finish_date");
+//                        System.out.println(finishDate);
+//                        if (finishDate != null) {
+//                            finishDatePicker.setValue(finishDate.toLocalDate());
+//                        } else {
+//                            finishDatePicker.setValue(null); // Если дата null, установите значение DatePicker в null
+//                        }
+
+                        StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+                            String pattern = "yyyy-MM-dd";
+                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(pattern);
+                            @Override
+                            public String toString(LocalDate date) {
+                                if (date != null) {
+                                    return dateFormatter.format(date);
+                                } else {
+                                    return "";
+                                }
+                            }
+
+                            @Override
+                            public LocalDate fromString(String string) {
+                                if (string != null && !string.isEmpty()) {
+                                    return LocalDate.parse(string, dateFormatter);
+                                } else {
+                                    return null;
+                                }
+                            }
+                        };
+
+                        registerDatePicker.setConverter(converter);
+                        finishDatePicker.setConverter(converter);
+
+                        registerDatePicker.setValue(resultSet.getDate("register_date").toLocalDate());
+                        finishDatePicker.setValue(resultSet.getDate("finish_date").toLocalDate());
 
                         moreInfoScrollPane.setVisible(true);
                     }

@@ -56,7 +56,7 @@ public class FinishedRequestTabController implements Initializable {
         // и получения данных о заявках на ремонт
 
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT request_number FROM repair_requests WHERE state = 'Выполнено'";
+            String query = "SELECT request_number FROM repair_requests WHERE state = 'Выполнено' ORDER BY request_number";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
