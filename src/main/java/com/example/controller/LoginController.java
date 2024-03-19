@@ -63,6 +63,8 @@ public class LoginController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         role = "operator";
+//        role = "manager";
+//        role = "repairer";
         autoLogin();
     }
 

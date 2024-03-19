@@ -57,16 +57,15 @@ public class AddRequestTabController implements Initializable {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
 
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO repair_requests (client_name, client_phone, equipment_serial_number, equipment_type, description, notes) VALUES (?, ?, ?, ?, ?, ?)");
+                    "INSERT INTO repair_requests (client_name, client_phone, equipment_serial_number, equipment_type, description, notes, state) VALUES (?, ?, ?, ?, ?, ?, ?)");
             preparedStatement.setString(1, clientNameField.getText());
             preparedStatement.setString(2, clientPhoneField.getText());
             preparedStatement.setString(3, serialNumberField.getText());
             preparedStatement.setString(4, equipTypeField.getText());
             preparedStatement.setString(5, descriptionTextField.getText());
             preparedStatement.setString(6, notesTextField.getText());
-            String resultStr = preparedStatement.toString();
+            preparedStatement.setString(7, "Новая");
             preparedStatement.execute();
-//            ClientPostgreSQL.getInstance().simpleQuery("public", resultStr);
             preparedStatement.close();
 
             MyAlert.showInfoAlert("Запись добавлена успешно.");

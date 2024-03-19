@@ -26,7 +26,7 @@ public class MainViewController implements Initializable {
             addTab("Готово к выдаче", "/view/operator_tabs/FinishedRequestsTab.fxml");
 
         } else if (role.equals("manager")) {
-            addTab("Новые заявки", "");
+            addTab("Новые заявки", "/view/manager_tabs/NewRequestsTab.fxml");
             addTab("Все заявки", "");
             addTab("Пользователи", "");
             addTab("Статистика", "");
@@ -48,7 +48,9 @@ public class MainViewController implements Initializable {
         Tab newRequestTab = new Tab(title);
         try {
             newRequestTab.setStyle("-fx-font-family: Arial; -fx-font-size: 14;");
-            newRequestTab.setContent(new FXMLLoader(getClass().getResource(pathToFXML)).load());
+            if (!pathToFXML.equals("")) {
+                newRequestTab.setContent(new FXMLLoader(getClass().getResource(pathToFXML)).load());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

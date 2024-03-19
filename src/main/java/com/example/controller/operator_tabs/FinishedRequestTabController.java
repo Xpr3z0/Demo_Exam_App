@@ -32,6 +32,7 @@ public class FinishedRequestTabController implements Initializable {
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
     private final String LOGIN = "postgres";
     private final String PASSWORD = "root";
+    private int currentRequestNumber = -1;
 
 
     @Override
@@ -43,8 +44,8 @@ public class FinishedRequestTabController implements Initializable {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1) {
                 String selectedItem = repairRequestListView.getItems().get(selectedIndex);
-                int requestNumber = Integer.parseInt(selectedItem);
-                showMoreInfo(requestNumber);
+                currentRequestNumber = Integer.parseInt(selectedItem);
+                showMoreInfo(currentRequestNumber);
             }
         });
     }
@@ -55,10 +56,7 @@ public class FinishedRequestTabController implements Initializable {
         // и получения данных о заявках на ремонт
 
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-//            String query = "SELECT request_number, description, client_name FROM repair_requests";
-
-            // TODO: сделать фильтр по статусу "Выполнено"
-            String query = "SELECT request_number FROM repair_requests";
+            String query = "SELECT request_number FROM repair_requests WHERE state = 'Выполнено'";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -108,18 +106,31 @@ public class FinishedRequestTabController implements Initializable {
     public void onActionDelete(ActionEvent actionEvent) {
         int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
-            String columnSearch = repairRequestListView.getItems().get(selectedIndex);
-//            String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
-            String columnSearchName = "request_number";
-            String selectedTable = "repair_requests";
-
-            // TODO: заменить удаление на смену статуса
-            repairRequestListView.getItems().remove(selectedIndex);
             clientPostgreSQL = ClientPostgreSQL.getInstance();
-            clientPostgreSQL.deleteRowTable(selectedTable, columnSearchName, columnSearch);
+            Connection connection = null;
 
-            moreInfoScrollPane.setVisible(false);
-            MyAlert.showInfoAlert("Заявка успешно закрыта");
+            try {
+                connection = clientPostgreSQL.getConnection();
+//                connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
+                PreparedStatement preparedStatement = connection.prepareStatement(
+                        "UPDATE repair_requests SET state = 'Закрыта' WHERE request_number = " + currentRequestNumber);
+                preparedStatement.executeUpdate();
+
+
+                MyAlert.showInfoAlert("Заявка успешно закрыта.");
+                moreInfoScrollPane.setVisible(false);
+                repairRequestListView.getItems().remove(repairRequestListView.getSelectionModel().getSelectedIndex());
+
+            } catch (SQLException | NumberFormatException e) {
+                e.printStackTrace();
+                MyAlert.showErrorAlert("Ошибка при закрытии заявки.");
+            } finally {
+                try {
+                    clientPostgreSQL.closeConnection();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

@@ -15,7 +15,7 @@ import java.net.URL;
 import java.sql.*;
 import java.util.ResourceBundle;
 
-public class NewRequestTabController implements Initializable {
+public class NewRequestsTabController implements Initializable {
 
     @FXML
     private ListView<String> repairRequestListView;
@@ -27,24 +27,33 @@ public class NewRequestTabController implements Initializable {
     public TextField equipSerialField;
     public TextArea notesTextArea;
     public ScrollPane moreInfoScrollPane;
+    public ChoiceBox<String> repairerChoice;
+    public ChoiceBox<String> priorityChoice;
+    public DatePicker finishDatePicker;
     public Button refreshListBtn;
     private ClientPostgreSQL clientPostgreSQL;
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
     private final String LOGIN = "postgres";
     private final String PASSWORD = "root";
+    private Connection connection = null;
+    private int currentRequestNumber = -1;
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoScrollPane.setVisible(false);
         loadRepairRequests();
+        priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
+
+        // TODO: Сделать подгрузку списка исполнителей
+        repairerChoice.getItems().addAll("Исполнитель1", "Исполнитель2", "Исполнитель3", "Исполнитель4");
 
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1) {
                 String selectedItem = repairRequestListView.getItems().get(selectedIndex);
-                int requestNumber = Integer.parseInt(selectedItem);
-                showMoreInfo(requestNumber);
+                currentRequestNumber = Integer.parseInt(selectedItem);
+                showMoreInfo(currentRequestNumber);
             }
         });
     }
@@ -55,8 +64,8 @@ public class NewRequestTabController implements Initializable {
         // и получения данных о заявках на ремонт
 
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-//            String query = "SELECT request_number, description, client_name FROM repair_requests";
-            String query = "SELECT request_number FROM repair_requests";
+            String query = "SELECT request_number FROM repair_requests WHERE state = 'Новая'";
+
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     while (resultSet.next()) {
@@ -99,6 +108,42 @@ public class NewRequestTabController implements Initializable {
     public void onActionRefresh(ActionEvent event) {
         repairRequestListView.getItems().clear();
         loadRepairRequests();
+    }
+
+
+    public void onActionRegister(ActionEvent event) {
+        try {
+            connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "UPDATE repair_requests SET equipment_serial_number = ?, equipment_type = ?, description = ?, notes = ?, " +
+                            "state = ?, repairer = ?, priority = ?, register_date = ?, finish_date = ? WHERE request_number = ?");
+            preparedStatement.setString(1, equipSerialField.getText());
+            preparedStatement.setString(2, equipTypeField.getText());
+            preparedStatement.setString(3, descriptionTextArea.getText());
+            preparedStatement.setString(4, notesTextArea.getText());
+            preparedStatement.setString(5, "В работе");
+            preparedStatement.setString(6, repairerChoice.getValue());
+            preparedStatement.setString(7, priorityChoice.getValue());
+            preparedStatement.setDate(8, new java.sql.Date(System.currentTimeMillis()));
+            preparedStatement.setDate(9, Date.valueOf(finishDatePicker.getValue()));
+            preparedStatement.setInt(10, currentRequestNumber);
+            preparedStatement.executeUpdate();
+
+
+            MyAlert.showInfoAlert("Заявка успешно зарегистрирована.");
+            moreInfoScrollPane.setVisible(false);
+            repairRequestListView.getItems().remove(repairRequestListView.getSelectionModel().getSelectedIndex());
+
+        } catch (SQLException | NumberFormatException e) {
+            e.printStackTrace();
+            MyAlert.showErrorAlert("Ошибка при регистрации заявки.");
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
