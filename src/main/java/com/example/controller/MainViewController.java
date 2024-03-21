@@ -11,7 +11,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainViewController implements Initializable {
-    private String role;
+    public static String role;
     @FXML
     public TabPane mainPane;
     public MainViewController(String role) {

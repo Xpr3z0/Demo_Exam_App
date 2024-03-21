@@ -9,8 +9,8 @@
    <center>
       <SplitPane dividerPositions="0.5" minHeight="200.0" minWidth="200.0" BorderPane.alignment="CENTER">
          <items>
-            <ListView fx:id="repairRequestListView" prefHeight="200.0" prefWidth="200.0" />
-            <ScrollPane fx:id="moreInfoScrollPane" fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
+            <ListView fx:id="repairRequestListView" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" />
+            <ScrollPane fx:id="moreInfoScrollPane" fitToWidth="true" focusTraversable="false" prefHeight="200.0" prefWidth="200.0">
                <content>
                   <VBox spacing="20.0">
                      <children>

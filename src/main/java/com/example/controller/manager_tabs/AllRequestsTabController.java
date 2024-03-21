@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.util.StringConverter;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class AllRequestsTabController implements Initializable {
     public TextField equipSerialField;
     public TextArea notesTextArea;
     public ScrollPane moreInfoScrollPane;
+    public BorderPane moreInfoPane;
     public ChoiceBox<String> stateChoice;
     public ChoiceBox<String> repairerChoice;
     public ChoiceBox<String> priorityChoice;
@@ -48,7 +50,7 @@ public class AllRequestsTabController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        moreInfoScrollPane.setVisible(false);
+        moreInfoPane.setVisible(false);
         loadRepairRequests();
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");
@@ -164,7 +166,7 @@ public class AllRequestsTabController implements Initializable {
             repairRequestListView.getItems().remove(selectedIndex);
             clientPostgreSQL = ClientPostgreSQL.getInstance();
             clientPostgreSQL.deleteRowTable(selectedTable, columnSearchName, columnSearch);
-            moreInfoScrollPane.setVisible(false);
+            moreInfoPane.setVisible(false);
             MyAlert.showInfoAlert("Заявка успешно удалена");
         }
     }
@@ -190,7 +192,7 @@ public class AllRequestsTabController implements Initializable {
                         registerDateTF.setText(resultSet.getDate("register_date").toString());
                         finishDateTF.setText(resultSet.getDate("finish_date").toString());
 
-                        moreInfoScrollPane.setVisible(true);
+                        moreInfoPane.setVisible(true);
                     }
                 }
             }
