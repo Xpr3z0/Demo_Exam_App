@@ -150,10 +150,14 @@
                   <Insets top="10.0" />
                </padding>
             </Label>
-            <CheckBox mnemonicParsing="false" text="В работе" />
-            <CheckBox mnemonicParsing="false" text="В ожидании" />
-            <CheckBox mnemonicParsing="false" text="Выполнено" />
-            <CheckBox mnemonicParsing="false" text="Закрыта" />
+            <VBox fx:id="statesVBox" prefWidth="100.0" spacing="10.0">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="В работе" />
+                  <CheckBox mnemonicParsing="false" text="В ожидании" />
+                  <CheckBox mnemonicParsing="false" text="Выполнено" />
+                  <CheckBox mnemonicParsing="false" text="Закрыта" />
+               </children>
+            </VBox>
             <Separator prefWidth="200.0" />
             <Label text="Приоритет заявки">
                <font>
@@ -163,10 +167,14 @@
                   <Insets />
                </VBox.margin>
             </Label>
-            <CheckBox mnemonicParsing="false" text="Срочный" />
-            <CheckBox mnemonicParsing="false" text="Высокий" />
-            <CheckBox mnemonicParsing="false" text="Обычный" />
-            <CheckBox mnemonicParsing="false" text="Низкий" />
+            <VBox fx:id="priorityVBox" prefWidth="100.0" spacing="10.0">
+               <children>
+                  <CheckBox mnemonicParsing="false" text="Срочный" />
+                  <CheckBox mnemonicParsing="false" text="Высокий" />
+                  <CheckBox mnemonicParsing="false" text="Обычный" />
+                  <CheckBox mnemonicParsing="false" text="Низкий" />
+               </children>
+            </VBox>
             <Separator prefWidth="200.0" />
             <Label text="Дата создания заявки">
                <font>
@@ -176,7 +184,7 @@
                   <Insets />
                </VBox.margin>
             </Label>
-            <DatePicker />
+            <TextField fx:id="dateFilterTF" />
             <Separator prefWidth="200.0" />
             <Label text="Номер заявки">
                <font>
@@ -186,9 +194,9 @@
                   <Insets />
                </VBox.margin>
             </Label>
-            <TextField />
+            <TextField fx:id="idFilterTF" />
             <Separator prefWidth="200.0" />
-            <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="Применить">
+            <Button fx:id="applyFiltersBtn" mnemonicParsing="false" onAction="#applyFilters" prefHeight="35.0" prefWidth="150.0" text="Применить">
                <padding>
                   <Insets left="20.0" right="20.0" />
                </padding>
@@ -196,7 +204,7 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </Button>
-            <Button mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="Очистить фильтры">
+            <Button fx:id="clearFiltersBtn" mnemonicParsing="false" onAction="#clearFilters" prefHeight="35.0" prefWidth="150.0" text="Очистить фильтры">
                <padding>
                   <Insets left="20.0" right="20.0" />
                </padding>
