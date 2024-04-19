@@ -57,12 +57,12 @@
                         </Label>
                         <TextField fx:id="equipSerialField" editable="false" maxWidth="300.0" />
                         <Separator prefWidth="200.0" />
-                        <Label text="Примечания">
+                        <Label text="Комментарии к заявке">
                            <font>
                               <Font name="Arial Bold" size="14.0" />
                            </font>
                         </Label>
-                        <TextArea fx:id="notesTextArea" editable="false" layoutX="30.0" layoutY="338.0" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
+                        <TextArea fx:id="commentsTextArea" editable="false" layoutX="30.0" layoutY="338.0" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
                         <Separator prefWidth="200.0" />
                         <Label layoutX="30.0" layoutY="612.0" text="Исполнитель">
                            <font>

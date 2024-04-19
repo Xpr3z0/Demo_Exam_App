@@ -36,7 +36,7 @@ public class AllRequestsTabController implements Initializable {
     public Label clientNameLabel;
     public Label clientPhoneLabel;
     public TextField equipSerialField;
-    public TextArea notesTextArea;
+    public TextArea commentsTextArea;
     public ScrollPane moreInfoScrollPane;
     public BorderPane moreInfoPane;
     public ChoiceBox<String> stateChoice;
@@ -268,7 +268,7 @@ public class AllRequestsTabController implements Initializable {
             preparedStatement.setString(1, equipSerialField.getText());
             preparedStatement.setString(2, equipTypeField.getText());
             preparedStatement.setString(3, descriptionTextArea.getText());
-            preparedStatement.setString(4, notesTextArea.getText());
+            preparedStatement.setString(4, commentsTextArea.getText());
             preparedStatement.setString(5, stateChoice.getValue());
             preparedStatement.setString(6, repairerChoice.getValue());
             preparedStatement.setString(7, priorityChoice.getValue());
@@ -326,7 +326,7 @@ public class AllRequestsTabController implements Initializable {
                         clientNameLabel.setText("ФИО: " + resultSet.getString("client_name"));
                         clientPhoneLabel.setText("Телефон: " + resultSet.getString("client_phone"));
                         equipSerialField.setText(resultSet.getString("equipment_serial_number"));
-                        notesTextArea.setText(resultSet.getString("notes"));
+                        commentsTextArea.setText(resultSet.getString("notes"));
                         stateChoice.setValue(resultSet.getString("state"));
                         priorityChoice.setValue(resultSet.getString("priority"));
                         repairerChoice.setValue(resultSet.getString("repairer"));

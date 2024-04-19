@@ -15,7 +15,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,7 +33,7 @@ public class FinishedRequestTabController implements Initializable {
     public Label clientNameLabel;
     public Label clientPhoneLabel;
     public TextField equipSerialField;
-    public TextArea notesTextArea;
+    public TextArea commentsTextArea;
     public ScrollPane moreInfoScrollPane;
     public Button refreshListBtn;
     private ClientPostgreSQL clientPostgreSQL;
@@ -160,7 +159,7 @@ public class FinishedRequestTabController implements Initializable {
                         clientNameLabel.setText("ФИО: " + resultSet.getString("client_name"));
                         clientPhoneLabel.setText("Телефон: " + resultSet.getString("client_phone"));
                         equipSerialField.setText(resultSet.getString("equipment_serial_number"));
-                        notesTextArea.setText(resultSet.getString("notes"));
+                        commentsTextArea.setText(resultSet.getString("notes"));
 
                         moreInfoScrollPane.setVisible(true);
                     }
