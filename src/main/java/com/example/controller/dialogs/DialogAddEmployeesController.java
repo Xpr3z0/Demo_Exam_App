@@ -2,6 +2,7 @@ package com.example.controller.dialogs;
 
 import com.example.bdclient.ClientPostgreSQL;
 import com.example.controller.BDController;
+import com.example.controller.manager_tabs.UsersTabController;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -22,6 +23,7 @@ public class DialogAddEmployeesController implements Initializable {
     public VBox valuesVbox;
     public Button idBottomAdd;
     private String selectedTable;
+    public ChoiceBox<String> roleChoice;
 
 
     public DialogAddEmployeesController(String selectedTable) {
@@ -30,36 +32,46 @@ public class DialogAddEmployeesController implements Initializable {
 
 
     public void onCancelBtn(ActionEvent actionEvent) {
-        showTable();
+        ((Stage) idBottomAdd.getScene().getWindow()).close();
+//        showTable();
     }
 
 
     public void onActionBottomAdd(ActionEvent actionEvent) {
         ObservableList<Node> list = valuesVbox.getChildren();
-        String sqlAdd = "INSERT INTO Employees (last_name, first_name, patronymic, phone) VALUES (";
+        String sqlAdd = "INSERT INTO Employees (name, login, pass, role) VALUES (";
 
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) instanceof TextField) {
-
                 sqlAdd += "'" + ((TextField) list.get(i)).getText();
                 sqlAdd += (i + 1 != list.size()) ? "'," : "";
-
-            }
-            else if (list.get(i) instanceof ChoiceBox){
-
+            } else if (list.get(i) instanceof ChoiceBox) {
                 sqlAdd += "'" + ((ChoiceBox) list.get(i)).getValue();
                 sqlAdd += (i + 1 != list.size()) ? "'," : "";
-
             }
         }
         sqlAdd += "');";
 
-        ClientPostgreSQL.getInstance().simpleQuery(selectedTable, sqlAdd);
-        showTable();
+        boolean success = ClientPostgreSQL.getInstance().simpleQuery(selectedTable, sqlAdd);
+        if (success) {
+            MyAlert.showInfoAlert("Запись добавлена успешно");
+        } else {
+            MyAlert.showErrorAlert("Произошла ошибка при добавлении записи");
+        }
+
+        // Получаем текущее окно и закрываем его
+        Stage stage = (Stage) idBottomAdd.getScene().getWindow();
+        stage.close();
+
+        // Обновляем таблицу в UsersTabController
+        UsersTabController parentController = (UsersTabController) stage.getUserData();
+        parentController.updateTable();
     }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        roleChoice.getItems().addAll("operator", "manager", "repairer");
         // ...
     }
 
