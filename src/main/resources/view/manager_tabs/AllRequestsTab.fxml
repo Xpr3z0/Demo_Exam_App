@@ -122,17 +122,17 @@
                   </ScrollPane>
                </center>
                <bottom>
-                  <HBox spacing="20.0" BorderPane.alignment="CENTER">
+                  <HBox alignment="CENTER" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
                      <BorderPane.margin>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                      </BorderPane.margin>
                      <children>
-                                  <Button fx:id="saveRequestBtn" mnemonicParsing="false" onAction="#onActionSave" prefHeight="35.0" prefWidth="130.0" text="Сохранить">
+                        <Button fx:id="checkReportBtn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#onActionCheckReport" prefHeight="35.0" prefWidth="150.0" text="Посмотреть отчёт">
                            <padding>
                               <Insets left="20.0" right="20.0" />
                            </padding>
                         </Button>
-                        <Button fx:id="checkReportBtn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#onActionSave" prefHeight="35.0" prefWidth="130.0" text="Посмотреть отчёт">
+                                  <Button fx:id="saveRequestBtn" mnemonicParsing="false" onAction="#onActionSave" prefHeight="35.0" prefWidth="130.0" text="Сохранить">
                            <padding>
                               <Insets left="20.0" right="20.0" />
                            </padding>

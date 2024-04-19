@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class NewRequestsTabController implements Initializable {
@@ -42,11 +43,12 @@ public class NewRequestsTabController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoScrollPane.setVisible(false);
+        clientPostgreSQL = ClientPostgreSQL.getInstance();
         loadRepairRequests();
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
 
-        // TODO: Сделать подгрузку списка исполнителей
-        repairerChoice.getItems().addAll("Исполнитель1", "Исполнитель2", "Исполнитель3", "Исполнитель4");
+        ArrayList<String> repairersList = clientPostgreSQL.stringListQuery("name", "employees", "role = 'repairer'", "name");
+        repairerChoice.getItems().addAll(repairersList);
 
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();

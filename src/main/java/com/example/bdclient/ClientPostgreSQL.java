@@ -141,17 +141,26 @@ public class ClientPostgreSQL {
         }
     }
 
-    public ArrayList<String> stringListQuery(String query) {
+    public ArrayList<String> stringListQuery(String neededColoumn, String table, String where, String orderBy) {
         Connection connection = null;
         ResultSet resultSet;
+
+        String finalQuery = "SELECT " + neededColoumn + " FROM " + table;
+        if (where != null) {
+            finalQuery += " WHERE " + where;
+        }
+        if (orderBy != null) {
+            finalQuery += " ORDER BY " + orderBy;
+        }
+
         ArrayList<String> finalList = new ArrayList<>();
         try {
 
             connection = DriverManager.getConnection(dbUrl, login, password);
-            PreparedStatement statement = connection.prepareStatement(query.trim());
+            PreparedStatement statement = connection.prepareStatement(finalQuery.trim());
             resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                finalList.add(resultSet.getString("name"));
+                finalList.add(resultSet.getString(neededColoumn));
             }
             System.out.println(finalList);
             resultSet.close();

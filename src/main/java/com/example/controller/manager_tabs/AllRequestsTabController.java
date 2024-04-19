@@ -14,13 +14,10 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -45,10 +42,13 @@ public class AllRequestsTabController implements Initializable {
     public ChoiceBox<String> stateChoice;
     public ChoiceBox<String> repairerChoice;
     public ChoiceBox<String> priorityChoice;
+
+    // TODO: для дат заменить текстовые поля на пикеры
 //    public DatePicker registerDatePicker;
 //    public DatePicker finishDatePicker;
     public TextField registerDateTF;
     public TextField finishDateTF;
+
     public Button refreshListBtn;
     public Button checkReportBtn;
     private ClientPostgreSQL clientPostgreSQL;
@@ -64,6 +64,8 @@ public class AllRequestsTabController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoPane.setVisible(false);
+        checkReportBtn.setVisible(false);
+        clientPostgreSQL = ClientPostgreSQL.getInstance();
 
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
@@ -78,8 +80,8 @@ public class AllRequestsTabController implements Initializable {
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");
 
-        // TODO: Сделать подгрузку списка исполнителей
-        repairerChoice.getItems().addAll("Исполнитель1", "Исполнитель2", "Исполнитель3", "Исполнитель4");
+        ArrayList<String> repairersList = clientPostgreSQL.stringListQuery("name", "employees", "role = 'repairer'", "name");
+        repairerChoice.getItems().addAll(repairersList);
 
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
@@ -306,6 +308,11 @@ public class AllRequestsTabController implements Initializable {
         }
     }
 
+    public void onActionCheckReport(ActionEvent actionEvent) {
+        // TODO: логика открытия отчёта
+        MyAlert.showInfoAlert("*Типа вывели отчёт для заявки №" + currentRequestNumber + "*");
+    }
+
     private void showMoreInfo(int requestNumber) {
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
             String query = "SELECT * FROM repair_requests WHERE request_number = ?";
@@ -327,6 +334,12 @@ public class AllRequestsTabController implements Initializable {
                         registerDateTF.setText(resultSet.getDate("register_date").toString());
                         finishDateTF.setText(resultSet.getDate("finish_date").toString());
 
+                        if (stateChoice.getValue().equals("Выполнено") ||
+                                stateChoice.getValue().equals("Закрыта")) {
+                            checkReportBtn.setVisible(true);
+                        } else {
+                            checkReportBtn.setVisible(false);
+                        }
                         moreInfoPane.setVisible(true);
                     }
                 }

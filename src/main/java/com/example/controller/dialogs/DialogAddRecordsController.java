@@ -54,7 +54,7 @@ public class DialogAddRecordsController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         warnLabel.setVisible(false);
 
-        ArrayList<String> resultList = clientPostgreSQL.stringListQuery("SELECT name FROM drugs ORDER BY drug_id");
+        ArrayList<String> resultList = clientPostgreSQL.stringListQuery("name", "drugs", null, "drug_id");
         TextFields.bindAutoCompletion(drugNameTF, resultList);
 
         buyRB.setOnAction(event -> calculateTotal());
