@@ -3,13 +3,22 @@ package com.example.controller.operator_tabs;
 import com.example.bdclient.ClientPostgreSQL;
 import com.example.controller.ListItemController;
 import com.example.controller.dialogs.MyAlert;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
@@ -34,10 +43,14 @@ public class FinishedRequestTabController implements Initializable {
     private final String PASSWORD = "root";
     private int currentRequestNumber = -1;
 
+    private final String QR_CODE_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+    public ImageView qrImageView;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoScrollPane.setVisible(false);
+        qrImageView.setImage(generateQRCode(QR_CODE_URL));
         loadRepairRequests();
 
         repairRequestListView.setOnMouseClicked(event -> {
@@ -158,5 +171,22 @@ public class FinishedRequestTabController implements Initializable {
         }
     }
 
+    private Image generateQRCode(String content) {
+        try {
+            // Используем MultiFormatWriter из ZXing для генерации QR-кода
+            BitMatrix bitMatrix = new MultiFormatWriter()
+                    .encode(content, BarcodeFormat.QR_CODE, 300, 300);
+
+            // Преобразование BitMatrix в Image
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", out);
+
+            return new Image(new ByteArrayInputStream(out.toByteArray()));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 }

@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
@@ -9,84 +10,105 @@
    <center>
       <SplitPane dividerPositions="0.5" minHeight="200.0" minWidth="200.0" BorderPane.alignment="CENTER">
          <items>
-            <ListView fx:id="repairRequestListView" prefHeight="200.0" prefWidth="200.0" />
-            <ScrollPane fx:id="moreInfoScrollPane" fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
-               <content>
-                  <VBox spacing="20.0">
-                     <children>
-                        <Label fx:id="requestNumberLabel" text="Заявка №123456">
-                           <font>
-                              <Font name="Arial Bold" size="18.0" />
-                           </font>
-                        </Label>
-                        <Separator prefWidth="200.0" />
-                        <Label text="Тип оборудования">
-                           <font>
-                              <Font name="Arial Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="equipTypeField" editable="false" maxWidth="300.0" />
-                        <Separator prefWidth="200.0" />
-                        <Label text="Описание проблемы">
-                           <font>
-                              <Font name="Arial Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <TextArea fx:id="descriptionTextArea" editable="false" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
-                        <Separator prefWidth="200.0" />
-                        <Label text="Клиент">
-                           <font>
-                              <Font name="Arial Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="clientNameLabel" layoutX="30.0" layoutY="481.0" text="ФИО: Иванов Иван Иванович">
-                           <font>
-                              <Font name="Arial" size="14.0" />
-                           </font>
-                        </Label>
-                        <Label fx:id="clientPhoneLabel" text="Телефон: +79997776655">
-                           <font>
-                              <Font name="Arial" size="14.0" />
-                           </font>
-                        </Label>
-                        <Separator prefWidth="200.0" />
-                        <Label text="Серийный номер оборудования">
-                           <font>
-                              <Font name="Arial Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="equipSerialField" editable="false" maxWidth="300.0" />
-                        <Separator prefWidth="200.0" />
-                        <Label text="Примечания">
-                           <font>
-                              <Font name="Arial Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <TextArea fx:id="notesTextArea" editable="false" layoutX="30.0" layoutY="338.0" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
-                        <Separator prefWidth="200.0" />
-                        <HBox alignment="CENTER" spacing="20.0">
-                           <children>
-                              <Button fx:id="deleteRequestBtn" mnemonicParsing="false" onAction="#onActionDelete" prefHeight="35.0" text="Закрыть заявку">
-                                 <padding>
-                                    <Insets left="20.0" right="20.0" />
-                                 </padding></Button>
-                           </children>
-                        </HBox>
-                     </children>
-                     <padding>
+            <BorderPane prefHeight="200.0" prefWidth="200.0">
+               <center>
+                  <ListView fx:id="repairRequestListView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+               </center>
+               <bottom>
+                  <Button fx:id="refreshListBtn" mnemonicParsing="false" onAction="#onActionRefresh" prefHeight="35.0" prefWidth="130.0" text="Обновить список" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
                         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                     </padding>
-                  </VBox>
-               </content>
-            </ScrollPane>
+                     </BorderPane.margin>
+                  </Button>
+               </bottom>
+            </BorderPane>
+            <BorderPane>
+               <center>
+                  <ScrollPane fx:id="moreInfoScrollPane" fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
+                     <content>
+                        <VBox spacing="20.0">
+                           <children>
+                              <Label fx:id="requestNumberLabel" text="Заявка №123456">
+                                 <font>
+                                    <Font name="Arial Bold" size="18.0" />
+                                 </font>
+                              </Label>
+                              <Separator prefWidth="200.0" />
+                              <Label text="Тип оборудования">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="equipTypeField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Описание проблемы">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextArea fx:id="descriptionTextArea" editable="false" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Клиент">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="clientNameLabel" layoutX="30.0" layoutY="481.0" text="ФИО: Иванов Иван Иванович">
+                                 <font>
+                                    <Font name="Arial" size="14.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="clientPhoneLabel" text="Телефон: +79997776655">
+                                 <font>
+                                    <Font name="Arial" size="14.0" />
+                                 </font>
+                              </Label>
+                              <Separator prefWidth="200.0" />
+                              <Label text="Серийный номер оборудования">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="equipSerialField" editable="false" maxWidth="300.0" />
+                              <Separator prefWidth="200.0" />
+                              <Label text="Примечания">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <TextArea fx:id="notesTextArea" editable="false" layoutX="30.0" layoutY="338.0" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
+                              <Separator prefWidth="200.0" />
+                              <Label layoutX="30.0" layoutY="612.0" text="Оставить отзыв">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <ImageView fx:id="qrImageView" fitHeight="200.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+                              <Separator prefWidth="200.0" />
+                           </children>
+                           <padding>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </center>
+               <bottom>
+                  <HBox alignment="CENTER" spacing="20.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button fx:id="deleteRequestBtn" mnemonicParsing="false" onAction="#onActionDelete" prefHeight="35.0" text="Закрыть заявку">
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                           <HBox.margin>
+                              <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </bottom>
+            </BorderPane>
          </items>
       </SplitPane>
    </center>
-   <bottom>
-      <Button fx:id="refreshListBtn" mnemonicParsing="false" onAction="#onActionRefresh" prefHeight="35.0" prefWidth="130.0" text="Обновить список" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </BorderPane.margin>
-      </Button>
-   </bottom>
 </BorderPane>
