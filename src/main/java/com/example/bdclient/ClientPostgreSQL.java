@@ -117,7 +117,7 @@ public class ClientPostgreSQL {
         String orderBy = "";
         switch (selectedTable) {
             case "drugs": orderBy = "drug_id"; break;
-            case "employees": orderBy = "id"; break;
+            case "members": orderBy = "id"; break;
             case "records": orderBy = "transaction_id"; break;
             default:
                 System.out.println("orderBy detection error");

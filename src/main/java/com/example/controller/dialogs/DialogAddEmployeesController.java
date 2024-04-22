@@ -39,7 +39,7 @@ public class DialogAddEmployeesController implements Initializable {
 
     public void onActionBottomAdd(ActionEvent actionEvent) {
         ObservableList<Node> list = valuesVbox.getChildren();
-        String sqlAdd = "INSERT INTO Employees (name, login, pass, role) VALUES (";
+        String sqlAdd = "INSERT INTO members (name, login, pass, role) VALUES (";
 
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i) instanceof TextField) {

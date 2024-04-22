@@ -68,13 +68,13 @@ public class FinishedRequestTabController implements Initializable {
         // и получения данных о заявках на ремонт
 
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT request_number FROM repair_requests WHERE state = 'Выполнено' ORDER BY request_number";
+            String query = "SELECT id FROM requests WHERE status = 'Выполнено' ORDER BY id";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     while (resultSet.next()) {
                         // Добавляем элементы в ListView
-                        String requestNumber = resultSet.getString("request_number");
+                        String requestNumber = resultSet.getString("id");
 
                         repairRequestListView.getItems().add(requestNumber);
                         repairRequestListView.setCellFactory(param -> {
@@ -115,7 +115,7 @@ public class FinishedRequestTabController implements Initializable {
     }
 
 
-    public void onActionDelete(ActionEvent actionEvent) {
+    public void onActionCloseRequest(ActionEvent actionEvent) {
         int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
             clientPostgreSQL = ClientPostgreSQL.getInstance();
@@ -125,7 +125,7 @@ public class FinishedRequestTabController implements Initializable {
                 connection = clientPostgreSQL.getConnection();
 //                connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
                 PreparedStatement preparedStatement = connection.prepareStatement(
-                        "UPDATE repair_requests SET state = 'Закрыта' WHERE request_number = " + currentRequestNumber);
+                        "UPDATE requests SET status = 'Закрыта' WHERE id = " + currentRequestNumber);
                 preparedStatement.executeUpdate();
 
 
@@ -148,18 +148,24 @@ public class FinishedRequestTabController implements Initializable {
 
     private void showMoreInfo(int requestNumber) {
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT * FROM repair_requests WHERE request_number = ?";
+            String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
+                    "r.equip_num, r.request_comments " +
+                    "FROM requests r " +
+                    "JOIN request_regs rr ON r.id = rr.request_id " +
+                    "WHERE r.id = ?";
+
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setInt(1, requestNumber);
+
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
-                        requestNumberLabel.setText("Заявка №" + resultSet.getString(1));
-                        equipTypeField.setText(resultSet.getString("equipment_type"));
-                        descriptionTextArea.setText(resultSet.getString("description"));
+                        requestNumberLabel.setText("Заявка №" + resultSet.getString("id"));
+                        equipTypeField.setText(resultSet.getString("equip_type"));
+                        descriptionTextArea.setText(resultSet.getString("problem_desc"));
                         clientNameLabel.setText("ФИО: " + resultSet.getString("client_name"));
                         clientPhoneLabel.setText("Телефон: " + resultSet.getString("client_phone"));
-                        equipSerialField.setText(resultSet.getString("equipment_serial_number"));
-                        commentsTextArea.setText(resultSet.getString("notes"));
+                        equipSerialField.setText(resultSet.getString("equip_num"));
+                        commentsTextArea.setText(resultSet.getString("request_comments"));
 
                         moreInfoScrollPane.setVisible(true);
                     }
@@ -167,6 +173,7 @@ public class FinishedRequestTabController implements Initializable {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            MyAlert.showErrorAlert("Ошибка при загрузке дополнительной информации о заявке.");
         }
     }
 

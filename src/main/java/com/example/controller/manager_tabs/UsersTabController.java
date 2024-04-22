@@ -32,7 +32,7 @@ public class UsersTabController implements Initializable {
     public TableView tableView;
     public Label lblLogin;
     private ClientPostgreSQL jdbcClient;
-    private String selectedTable = "employees";
+    private String selectedTable = "members";
     private List<String> columnNames;
     public Button addNewBtn;
 
@@ -118,7 +118,7 @@ public class UsersTabController implements Initializable {
     }
 
 
-
+    // TODO: сделать провеку перед удалением
     public void onActionDelete(ActionEvent actionEvent) {
         int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {

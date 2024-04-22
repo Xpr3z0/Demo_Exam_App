@@ -20,8 +20,6 @@ public class ListItemController {
     @FXML
     private Label clientNameLabel;
 
-    @FXML
-    private Button detailsButton;
 
     public int getRequestNumber() {
         return requestNumber;
@@ -50,18 +48,19 @@ public class ListItemController {
     }
 
     public void updateFromDatabase(int requestNumber) {
-        // Здесь вы должны использовать JDBC для получения данных из БД по requestNumber
-        // и обновить соответствующие надписи в вашем контроллере
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT description, client_name FROM repair_requests WHERE request_number = ?";
+            String query = "SELECT r.problem_desc, rr.client_name " +
+                    "FROM requests r " +
+                    "JOIN request_regs rr ON r.id = rr.request_id " +
+                    "WHERE r.id = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setInt(1, requestNumber);
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
-                        String description = resultSet.getString("description");
+                        String problemType = resultSet.getString("problem_desc");
                         String clientName = resultSet.getString("client_name");
 
-                        setDescription(description);
+                        setDescription(problemType); // Устанавливаем problemType вместо description
                         setClientName(clientName);
                     }
                 }
@@ -70,4 +69,5 @@ public class ListItemController {
             e.printStackTrace();
         }
     }
+
 }

@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,7 +29,9 @@ public class NewRequestsTabController implements Initializable {
     public TextField equipSerialField;
     public TextArea commentsTextArea;
     public ScrollPane moreInfoScrollPane;
-    public ChoiceBox<String> repairerChoice;
+    public BorderPane moreInfoBorderPane;
+    public ChoiceBox<String> responsibleRepairerChoice;
+    public ChoiceBox<String> additionalRepairerChoice;
     public ChoiceBox<String> priorityChoice;
     public DatePicker finishDatePicker;
     public Button refreshListBtn;
@@ -42,13 +45,17 @@ public class NewRequestsTabController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        moreInfoScrollPane.setVisible(false);
+        moreInfoBorderPane.setVisible(false);
         clientPostgreSQL = ClientPostgreSQL.getInstance();
         loadRepairRequests();
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
 
-        ArrayList<String> repairersList = clientPostgreSQL.stringListQuery("name", "employees", "role = 'repairer'", "name");
-        repairerChoice.getItems().addAll(repairersList);
+        ArrayList<String> repairersList = clientPostgreSQL.stringListQuery("name", "members", "role = 'repairer'", "name");
+        responsibleRepairerChoice.getItems().addAll(repairersList);
+        additionalRepairerChoice.getItems().add("Нет");
+        additionalRepairerChoice.getItems().addAll(repairersList);
+        additionalRepairerChoice.setValue("Нет");
+
 
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
@@ -66,13 +73,13 @@ public class NewRequestsTabController implements Initializable {
         // и получения данных о заявках на ремонт
 
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT request_number FROM repair_requests WHERE state = 'Новая' ORDER BY request_number";
+            String query = "SELECT id FROM requests WHERE status = 'Новая' ORDER BY id";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     while (resultSet.next()) {
                         // Добавляем элементы в ListView
-                        String requestNumber = resultSet.getString("request_number");
+                        String requestNumber = resultSet.getString("id");
 
                         repairRequestListView.getItems().add(requestNumber);
                         repairRequestListView.setCellFactory(param -> {
@@ -114,34 +121,79 @@ public class NewRequestsTabController implements Initializable {
 
 
     public void onActionRegister(ActionEvent event) {
+        Connection connection = null;
+        PreparedStatement preparedStatement1 = null;
+        PreparedStatement preparedStatement2 = null;
+        PreparedStatement respAssignPrepStatement = null;
+        PreparedStatement additAssignPrepStatement = null;
+
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "UPDATE repair_requests SET equipment_serial_number = ?, equipment_type = ?, description = ?, notes = ?, " +
-                            "state = ?, repairer = ?, priority = ?, register_date = ?, finish_date = ? WHERE request_number = ?");
-            preparedStatement.setString(1, equipSerialField.getText());
-            preparedStatement.setString(2, equipTypeField.getText());
-            preparedStatement.setString(3, descriptionTextArea.getText());
-            preparedStatement.setString(4, commentsTextArea.getText());
-            preparedStatement.setString(5, "В работе");
-            preparedStatement.setString(6, repairerChoice.getValue());
-            preparedStatement.setString(7, priorityChoice.getValue());
-            preparedStatement.setDate(8, new java.sql.Date(System.currentTimeMillis()));
-            preparedStatement.setDate(9, Date.valueOf(finishDatePicker.getValue()));
-            preparedStatement.setInt(10, currentRequestNumber);
-            preparedStatement.executeUpdate();
 
+            // Обновление записи в таблице requests
+            String updateQuery = "UPDATE requests SET equip_num = ?, equip_type = ?, problem_desc = ?, " +
+                    "request_comments = ?, status = ? WHERE id = ?";
+            preparedStatement1 = connection.prepareStatement(updateQuery);
+            preparedStatement1.setString(1, equipSerialField.getText());
+            preparedStatement1.setString(2, equipTypeField.getText());
+            preparedStatement1.setString(3, descriptionTextArea.getText());
+            preparedStatement1.setString(4, commentsTextArea.getText());
+            preparedStatement1.setString(5, "В работе");
+            preparedStatement1.setInt(6, currentRequestNumber);
+            preparedStatement1.executeUpdate();
+
+            // Вставка новой записи в таблицу request_processes
+            String insertQuery = "INSERT INTO request_processes (request_id, priority, date_finish_plan) VALUES (?, ?, ?)";
+            preparedStatement2 = connection.prepareStatement(insertQuery);
+            preparedStatement2.setInt(1, currentRequestNumber); // Устанавливаем request_id для вставки
+            preparedStatement2.setString(2, priorityChoice.getValue()); // Устанавливаем priority для вставки
+            preparedStatement2.setDate(3, Date.valueOf(finishDatePicker.getValue())); // Устанавливаем date_finish_plan для вставки
+            preparedStatement2.executeUpdate();
+
+            String insertRespAssignmentsQuery = "INSERT INTO assignments (id_request, member_id, is_responsible) " +
+                    "VALUES (?, (SELECT id FROM members WHERE name = ?), ?)";
+            respAssignPrepStatement = connection.prepareStatement(insertRespAssignmentsQuery);
+            respAssignPrepStatement.setInt(1, currentRequestNumber);
+            respAssignPrepStatement.setString(2, responsibleRepairerChoice.getValue());
+            respAssignPrepStatement.setBoolean(3, true);
+            respAssignPrepStatement.executeUpdate();
+
+            if (!additionalRepairerChoice.getValue().equals("Нет")) {
+                String insertAdditAssignmentsQuery = "INSERT INTO assignments (id_request, member_id, is_responsible) " +
+                        "VALUES (?, (SELECT id FROM members WHERE name = ?), ?)";
+                additAssignPrepStatement = connection.prepareStatement(insertAdditAssignmentsQuery);
+                additAssignPrepStatement.setInt(1, currentRequestNumber);
+                additAssignPrepStatement.setString(2, additionalRepairerChoice.getValue());
+                additAssignPrepStatement.setBoolean(3, false);
+                additAssignPrepStatement.executeUpdate();
+            }
 
             MyAlert.showInfoAlert("Заявка успешно зарегистрирована.");
-            moreInfoScrollPane.setVisible(false);
+            moreInfoBorderPane.setVisible(false);
             repairRequestListView.getItems().remove(repairRequestListView.getSelectionModel().getSelectedIndex());
 
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
             MyAlert.showErrorAlert("Ошибка при регистрации заявки.");
+
         } finally {
+            // Закрываем все ресурсы в блоке finally
             try {
-                connection.close();
+                if (preparedStatement1 != null) {
+                    preparedStatement1.close();
+                }
+                if (preparedStatement2 != null) {
+                    preparedStatement2.close();
+                }
+                if (respAssignPrepStatement != null) {
+                    respAssignPrepStatement.close();
+                }
+                if (additAssignPrepStatement != null) {
+                    additAssignPrepStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -149,44 +201,89 @@ public class NewRequestsTabController implements Initializable {
     }
 
 
+
+    @FXML
     public void onActionDelete(ActionEvent actionEvent) {
         int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
-            String columnSearch = repairRequestListView.getItems().get(selectedIndex);
-//            String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
-            String columnSearchName = "request_number";
-            String selectedTable = "repair_requests";
-            repairRequestListView.getItems().remove(selectedIndex);
-            clientPostgreSQL = ClientPostgreSQL.getInstance();
-            clientPostgreSQL.deleteRowTable(selectedTable, columnSearchName, columnSearch);
-            moreInfoScrollPane.setVisible(false);
-            MyAlert.showInfoAlert("Заявка успешно удалена");
+            int selectedItemId = Integer.parseInt(repairRequestListView.getItems().get(selectedIndex));
+
+            try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
+
+                // Удаляем запись из таблицы assignments (если существует)
+                PreparedStatement deleteAssignmentsStatement =
+                        connection.prepareStatement("DELETE FROM assignments WHERE id_request = " + selectedItemId);
+                int rowsDeletedAssignments = deleteAssignmentsStatement.executeUpdate();
+
+                // Удаляем запись из таблицы request_processes (если существует)
+                PreparedStatement deleteProcessesStatement =
+                        connection.prepareStatement("DELETE FROM request_processes WHERE request_id = " + selectedItemId);
+                int rowsDeletedProcesses = deleteProcessesStatement.executeUpdate();
+
+                // Удаляем запись из таблицы request_regs (если существует)
+                PreparedStatement deleteRegsStatement =
+                        connection.prepareStatement("DELETE FROM request_regs WHERE request_id = " + selectedItemId);
+                int rowsDeletedRegs = deleteRegsStatement.executeUpdate();
+
+                // Удаляем запись из таблицы requests
+                PreparedStatement deleteRequestsStatement =
+                        connection.prepareStatement("DELETE FROM requests WHERE id = " + selectedItemId);
+                int rowsDeletedRequests = deleteRequestsStatement.executeUpdate();
+
+
+                // TODO: мб проверку условий доделать
+                if (rowsDeletedRequests > 0) {
+                    MyAlert.showInfoAlert("Заявка успешно удалена.");
+                    repairRequestListView.getItems().remove(selectedIndex);
+                    moreInfoBorderPane.setVisible(false);
+                } else {
+                    MyAlert.showErrorAlert("Не удалось удалить заявку. Возможно, такая заявка не существует.");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                MyAlert.showErrorAlert("Ошибка при удалении заявки.");
+            }
+        } else {
+            MyAlert.showErrorAlert("Выберите заявку для удаления.");
         }
     }
 
+
     private void showMoreInfo(int requestNumber) {
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT * FROM repair_requests WHERE request_number = ?";
+            String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
+                    "r.equip_num, r.request_comments " +
+                    "FROM requests r " +
+                    "JOIN request_regs rr ON r.id = rr.request_id " +
+                    "WHERE r.id = ?";
+
+            responsibleRepairerChoice.setValue(null);
+            additionalRepairerChoice.setValue("Нет");
+            priorityChoice.setValue(null);
+            finishDatePicker.setValue(null);
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setInt(1, requestNumber);
+
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
-                        requestNumberLabel.setText("Заявка №" + resultSet.getString(1));
-                        equipTypeField.setText(resultSet.getString("equipment_type"));
-                        descriptionTextArea.setText(resultSet.getString("description"));
+                        requestNumberLabel.setText("Заявка №" + resultSet.getString("id"));
+                        equipTypeField.setText(resultSet.getString("equip_type"));
+                        descriptionTextArea.setText(resultSet.getString("problem_desc"));
                         clientNameLabel.setText("ФИО: " + resultSet.getString("client_name"));
                         clientPhoneLabel.setText("Телефон: " + resultSet.getString("client_phone"));
-                        equipSerialField.setText(resultSet.getString("equipment_serial_number"));
-                        commentsTextArea.setText(resultSet.getString("notes"));
+                        equipSerialField.setText(resultSet.getString("equip_num"));
+                        commentsTextArea.setText(resultSet.getString("request_comments"));
 
-                        moreInfoScrollPane.setVisible(true);
+                        moreInfoBorderPane.setVisible(true);
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            MyAlert.showErrorAlert("Ошибка при загрузке дополнительной информации о заявке.");
         }
     }
+
 
 
 }

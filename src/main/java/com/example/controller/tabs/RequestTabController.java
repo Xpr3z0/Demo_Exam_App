@@ -58,12 +58,12 @@ public class RequestTabController implements Initializable {
 
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
 //            String query = "SELECT request_number, description, client_name FROM repair_requests";
-            String query = "SELECT request_number FROM repair_requests";
+            String query = "SELECT id FROM requests";
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     while (resultSet.next()) {
                         // Добавляем элементы в ListView
-                        String requestNumber = resultSet.getString("request_number");
+                        String requestNumber = resultSet.getString("id");
 
                         repairRequestListView.getItems().add(requestNumber);
                         repairRequestListView.setCellFactory(param -> {

@@ -40,7 +40,7 @@ public class LoginController implements Initializable {
             if (jdbcClient.accessToDB(DB.ROOT_LOGIN, DB.ROOT_PASS)) {
                 try (Connection connection = DriverManager.getConnection(DB.URL,DB.ROOT_LOGIN, DB.ROOT_PASS)) {
                     // SQL запрос для проверки логина и пароля
-                    String sql = "SELECT role FROM employees WHERE login = ? AND pass = ?";
+                    String sql = "SELECT role FROM members WHERE login = ? AND pass = ?";
 
                     // Создание подготовленного запроса
                     try (PreparedStatement statement = connection.prepareStatement(sql)) {

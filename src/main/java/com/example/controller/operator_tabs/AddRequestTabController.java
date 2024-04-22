@@ -6,14 +6,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 public class AddRequestTabController implements Initializable {
@@ -22,8 +21,8 @@ public class AddRequestTabController implements Initializable {
     public TextField clientPhoneField;
     public TextField serialNumberField;
     public TextField equipTypeField;
-    public TextField descriptionTextField;
-    public TextField notesTextField;
+    public TextArea descTextArea;
+    public TextArea commentsTextArea;
     public Button createRequestBtn;
     public Button clearFieldsBtn;
     private ClientPostgreSQL clientPostgreSQL;
@@ -43,43 +42,77 @@ public class AddRequestTabController implements Initializable {
         clientPhoneField.clear();
         serialNumberField.clear();
         equipTypeField.clear();
-        descriptionTextField.clear();
-        notesTextField.clear();
+        descTextArea.clear();
+        commentsTextArea.clear();
     }
 
     public void onActionClear(ActionEvent event) {
         clearFields();
     }
-    
+
     @FXML
     public void onActionAdd(ActionEvent event) {
+        Connection connection = null;
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
+            connection.setAutoCommit(false); // Отключаем автокоммит для управления транзакцией
 
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO repair_requests (client_name, client_phone, equipment_serial_number, equipment_type, description, notes, state) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            preparedStatement.setString(1, clientNameField.getText());
-            preparedStatement.setString(2, clientPhoneField.getText());
-            preparedStatement.setString(3, serialNumberField.getText());
-            preparedStatement.setString(4, equipTypeField.getText());
-            preparedStatement.setString(5, descriptionTextField.getText());
-            preparedStatement.setString(6, notesTextField.getText());
-            preparedStatement.setString(7, "Новая");
-            preparedStatement.execute();
-            preparedStatement.close();
+            // Вставка данных в таблицу requests
+            String insertRequestsSql = "INSERT INTO requests (equip_num, equip_type, problem_desc, request_comments, status) VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement insertRequestsStatement = connection.prepareStatement(insertRequestsSql);
 
+            insertRequestsStatement.setString(1, serialNumberField.getText());
+            insertRequestsStatement.setString(2, equipTypeField.getText());
+            insertRequestsStatement.setString(3, descTextArea.getText());
+            insertRequestsStatement.setString(4, commentsTextArea.getText());
+            insertRequestsStatement.setString(5, "Новая");
+
+            insertRequestsStatement.executeUpdate();
+
+            // Получаем сгенерированный ключ (id) новой записи
+            int generatedId = -1;
+            try (PreparedStatement generatedIdStatement = connection.prepareStatement("SELECT LASTVAL()")) {
+                ResultSet resultSet = generatedIdStatement.executeQuery();
+                if (resultSet.next()) {
+                    generatedId = resultSet.getInt(1);
+                }
+            }
+
+            // Вставка данных в таблицу request_regs
+            String insertRequestRegsSql = "INSERT INTO request_regs (request_id, client_name, client_phone, date_start) VALUES (?, ?, ?, ?)";
+            PreparedStatement insertRequestRegsStatement = connection.prepareStatement(insertRequestRegsSql);
+            insertRequestRegsStatement.setInt(1, generatedId); // Используем сгенерированный id
+            insertRequestRegsStatement.setString(2, clientNameField.getText());
+            insertRequestRegsStatement.setString(3, clientPhoneField.getText());
+            insertRequestRegsStatement.setDate(4, Date.valueOf(LocalDate.now())); // Пример: устанавливаем текущую дату
+
+            insertRequestRegsStatement.executeUpdate();
+
+            // Завершение транзакции и фиксация изменений в базе данных
+            connection.commit();
             MyAlert.showInfoAlert("Запись добавлена успешно.");
             clearFields();
-
-        } catch (SQLException | NumberFormatException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             MyAlert.showErrorAlert("Ошибка при добавлении записи.");
+            if (connection != null) {
+                try {
+                    connection.rollback(); // Откатываем изменения в случае ошибки
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
         } finally {
             try {
-                connection.close();
+                if (connection != null) {
+                    connection.setAutoCommit(true); // Включаем обратно автокоммит
+                    connection.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
+
+
 }
