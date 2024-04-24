@@ -239,6 +239,7 @@ public class NewRequestsTabController implements Initializable {
                 } else {
                     MyAlert.showErrorAlert("Не удалось удалить заявку. Возможно, такая заявка не существует.");
                 }
+
             } catch (SQLException e) {
                 e.printStackTrace();
                 MyAlert.showErrorAlert("Ошибка при удалении заявки.");

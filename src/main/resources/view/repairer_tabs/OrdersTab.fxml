@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.repairer_tabs.OrdersTabController">
+    <center>
+        <TableView fx:id="tableView" prefHeight="494.0" prefWidth="700.0" BorderPane.alignment="CENTER" />
+    </center>
+    <bottom>
+        <BorderPane BorderPane.alignment="CENTER">
+            <left>
+                <HBox alignment="CENTER_LEFT" spacing="10.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <Button fx:id="addNewBtn" mnemonicParsing="false" onAction="#onActionAdd" text="Добавить сотрудника">
+                            <HBox.margin>
+                                <Insets />
+                            </HBox.margin>
+                        </Button>
+                        <Button id="deleteBtn" fx:id="deleteTable" mnemonicParsing="false" onAction="#onActionDelete" text="Удалить">
+                            <HBox.margin>
+                                <Insets />
+                            </HBox.margin>
+                        </Button>
+                    </children>
+                    <padding>
+                        <Insets bottom="15.0" left="20.0" top="15.0" />
+                    </padding>
+                </HBox>
+            </left>
+            <right>
+                <Label fx:id="lblLogin" alignment="BASELINE_LEFT" contentDisplay="RIGHT" disable="false" graphicTextGap="10.0" maxHeight="1.7976931348623157E308" textOverrun="WORD_ELLIPSIS" visible="true" wrapText="false" BorderPane.alignment="CENTER">
+                    <font>
+                        <Font name="System Italic" size="18.0" />
+                    </font>
+                    <BorderPane.margin>
+                        <Insets right="30.0" />
+                    </BorderPane.margin>
+                </Label>
+            </right>
+        </BorderPane>
+    </bottom>
+</BorderPane>

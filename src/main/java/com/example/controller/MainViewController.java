@@ -22,19 +22,19 @@ public class MainViewController implements Initializable {
         mainPane.getTabs().clear();
 
         if (role.equals("operator")) {
-            addTab("Новая заявка", "/view/operator_tabs/AddRequestTab.fxml");
-            addTab("Готово к выдаче", "/view/operator_tabs/FinishedRequestsTab.fxml");
+            addTab("Новая заявка",      "/view/operator_tabs/AddRequestTab.fxml");
+            addTab("Готово к выдаче",   "/view/operator_tabs/FinishedRequestsTab.fxml");
 
         } else if (role.equals("manager")) {
-            addTab("Новые заявки", "/view/manager_tabs/NewRequestsTab.fxml");
-            addTab("Все заявки", "/view/manager_tabs/AllRequestsTab.fxml");
-            addTab("Пользователи", "/view/manager_tabs/UsersTab.fxml");
-            addTab("Статистика", "");
+            addTab("Новые заявки",  "/view/manager_tabs/NewRequestsTab.fxml");
+            addTab("Все заявки",    "/view/manager_tabs/AllRequestsTab.fxml");
+            addTab("Пользователи",  "/view/manager_tabs/UsersTab.fxml");
+            addTab("Статистика",    "");
 
         } else if (role.equals("repairer")) {
-            addTab("Ответственные заявки", "/view/repairer_tabs/ResponsibleRequestsTab.fxml");
-            addTab("Обычные заявки", "");
-            addTab("Заказ запчастей", "");
+            addTab("Ответственные заявки",  "/view/repairer_tabs/ResponsibleRequestsTab.fxml");
+            addTab("Обычные заявки",        "");
+            addTab("Заказ запчастей",       "/view/repairer_tabs/OrdersTab.fxml");
         }
     }
 

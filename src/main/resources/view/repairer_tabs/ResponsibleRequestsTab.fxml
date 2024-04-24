@@ -96,8 +96,15 @@
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <ChoiceBox fx:id="repairerChoice" maxWidth="300.0" minWidth="-Infinity" prefWidth="300.0" />
+                              <ChoiceBox fx:id="responsibleRepairerChoice" disable="true" maxWidth="300.0" minWidth="-Infinity" prefWidth="300.0" />
                               <Separator layoutX="30.0" layoutY="872.0" prefWidth="200.0" />
+                              <Label layoutX="30.0" layoutY="999.0" text="Помощник">
+                                 <font>
+                                    <Font name="Arial Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <ChoiceBox fx:id="additionalRepairerChoice" layoutX="30.0" layoutY="1035.0" maxWidth="300.0" minWidth="-Infinity" prefWidth="300.0" />
+                              <Separator layoutX="30.0" layoutY="1080.0" prefWidth="200.0" />
                               <Label layoutX="30.0" layoutY="791.0" text="Дата регистрации заявки">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
@@ -132,7 +139,7 @@
                               <Insets left="20.0" right="20.0" />
                            </padding>
                         </Button>
-                                  <Button fx:id="saveRequestBtn" mnemonicParsing="false" onAction="#onActionSave" prefHeight="35.0" prefWidth="130.0" text="Сохранить">
+                        <Button fx:id="saveRequestBtn" mnemonicParsing="false" onAction="#onActionSave" prefHeight="35.0" prefWidth="130.0" text="Сохранить">
                            <padding>
                               <Insets left="20.0" right="20.0" />
                            </padding>

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-// TODO: вообще не тронуто
 public class ResponsibleRequestsTabController implements Initializable {
     public VBox statesVBox;
     public VBox priorityVBox;
@@ -41,7 +40,8 @@ public class ResponsibleRequestsTabController implements Initializable {
     public ScrollPane moreInfoScrollPane;
     public BorderPane moreInfoPane;
     public ChoiceBox<String> stateChoice;
-    public ChoiceBox<String> repairerChoice;
+    public ChoiceBox<String> responsibleRepairerChoice;
+    public ChoiceBox<String> additionalRepairerChoice;
     public ChoiceBox<String> priorityChoice;
 
     // TODO: для дат заменить текстовые поля на пикеры
@@ -51,7 +51,12 @@ public class ResponsibleRequestsTabController implements Initializable {
     public TextField finishDateTF;
 
     public Button refreshListBtn;
+
+    // TODO: в зависимости от того, есть ли уже отчёт для этой заявки или нет,
+    //  текст на кнопке должен быть либо "Создать отчёт", либо "Посмотреть отчёт",
+    //  и при клике на кнопку должна выполняться соответствующая логика
     public Button checkReportBtn;
+
     private ClientPostgreSQL clientPostgreSQL;
     private final String DB_URL = DB.URL;
     private final String LOGIN = DB.ROOT_LOGIN;
@@ -70,7 +75,7 @@ public class ResponsibleRequestsTabController implements Initializable {
 
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
-            initialQuery = "SELECT request_number FROM repair_requests WHERE state != 'Новая' ORDER BY request_number";
+            initialQuery = "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
             query = initialQuery;
             loadRepairRequests(connection, query);
         } catch (SQLException e) {
@@ -79,16 +84,20 @@ public class ResponsibleRequestsTabController implements Initializable {
         }
 
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
-        stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании");
+        stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании", "Закрыта");
 
-        ArrayList<String> repairersList = clientPostgreSQL.stringListQuery("name", "employees", "role = 'repairer'", "name");
-        repairerChoice.getItems().addAll(repairersList);
+        ArrayList<String> repairersList = clientPostgreSQL.stringListQuery("name", "members", "role = 'repairer'", "name");
+        responsibleRepairerChoice.getItems().addAll(repairersList);
+        additionalRepairerChoice.getItems().add("Нет");
+        additionalRepairerChoice.getItems().addAll(repairersList);
+        additionalRepairerChoice.setValue("Нет");
 
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1) {
                 String selectedItem = repairRequestListView.getItems().get(selectedIndex);
                 currentRequestNumber = Integer.parseInt(selectedItem);
+                System.out.println("Выбрана заявка №" + currentRequestNumber);
                 showMoreInfo(currentRequestNumber);
             }
         });
@@ -98,7 +107,9 @@ public class ResponsibleRequestsTabController implements Initializable {
     public void applyFilters(ActionEvent event) {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
 
-        StringBuilder queryBuilder = new StringBuilder("SELECT request_number FROM repair_requests WHERE state != 'Новая' AND ");
+        StringBuilder queryBuilder = new StringBuilder("SELECT r.id FROM requests r " +
+                "JOIN request_processes rp ON r.id = rp.request_id " +
+                "WHERE r.status != 'Новая' AND ");
 
         List<String> conditions = new ArrayList<>();
 
@@ -108,7 +119,7 @@ public class ResponsibleRequestsTabController implements Initializable {
             if (node instanceof CheckBox) {
                 CheckBox checkbox = (CheckBox) node;
                 if (checkbox.isSelected()) {
-                    stateConditions.add("state = '" + checkbox.getText() + "'");
+                    stateConditions.add("r.status = '" + checkbox.getText() + "'");
                 }
             }
         }
@@ -122,7 +133,7 @@ public class ResponsibleRequestsTabController implements Initializable {
             if (node instanceof CheckBox) {
                 CheckBox checkbox = (CheckBox) node;
                 if (checkbox.isSelected()) {
-                    priorityConditions.add("priority = '" + checkbox.getText() + "'");
+                    priorityConditions.add("rp.priority = '" + checkbox.getText() + "'");
                 }
             }
         }
@@ -133,15 +144,15 @@ public class ResponsibleRequestsTabController implements Initializable {
         // Фильтр по дате создания заявки
         String selectedDate = dateFilterTF.getText();
         if (selectedDate != null && !selectedDate.trim().isEmpty()) {
-            conditions.add("register_date = '" + selectedDate + "'");
+            conditions.add("r.id IN (SELECT request_id FROM request_regs WHERE date_start = '" + selectedDate + "')");
         }
 
         // Фильтр по номеру заявки
         String requestNumber = idFilterTF.getText().trim();
         if (!requestNumber.isEmpty()) {
             try {
-                int requestNum = Integer.parseInt(requestNumber);
-                conditions.add("request_number = " + requestNum);
+                int requestId = Integer.parseInt(requestNumber);
+                conditions.add("r.id = " + requestId);
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 MyAlert.showErrorAlert("Неверный формат номера заявки.");
@@ -156,15 +167,15 @@ public class ResponsibleRequestsTabController implements Initializable {
             queryBuilder.append("1=1"); // Если фильтры не выбраны, выбираем все заявки
         }
 
-        queryBuilder.append(" ORDER BY request_number");
+        queryBuilder.append(" ORDER BY r.id");
 
         // Выполняем SQL-запрос и заполняем ListView
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            query = queryBuilder.toString();
+            String query = queryBuilder.toString();
             loadRepairRequests(connection, query);
 
             // Проверяем, видима ли подробная информация после применения фильтров
-            if (!isRequestNumberInFilteredResults(currentRequestNumber)) {
+            if (!isRequestIdInFilteredResults(currentRequestNumber)) {
                 moreInfoPane.setVisible(false);
             }
 
@@ -177,42 +188,17 @@ public class ResponsibleRequestsTabController implements Initializable {
     }
 
 
-    // Метод для проверки, присутствует ли номер заявки в отфильтрованном списке
-    private boolean isRequestNumberInFilteredResults(int requestNumber) {
+    private boolean isRequestIdInFilteredResults(int requestId) {
         ObservableList<String> filteredItems = repairRequestListView.getItems();
         for (String item : filteredItems) {
-            if (Integer.parseInt(item) == requestNumber) {
+            if (Integer.parseInt(item) == requestId) {
                 return true;
             }
         }
         return false;
     }
 
-    @FXML
-    public void clearFilters(ActionEvent event) {
-        // Очистка выбора с чекбоксов состояний
-        for (Node node : statesVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                ((CheckBox) node).setSelected(false);
-            }
-        }
-
-        // Очистка выбора с чекбоксов приоритета
-        for (Node node : priorityVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                ((CheckBox) node).setSelected(false);
-            }
-        }
-
-        // Очистка полей под дату и номер заявки
-        dateFilterTF.clear();
-        idFilterTF.clear();
-    }
-
-
-
     private void loadRepairRequests(Connection connection, String query) {
-        this.query = query;
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -220,9 +206,9 @@ public class ResponsibleRequestsTabController implements Initializable {
 
             while (resultSet.next()) {
                 // Добавляем элементы в ListView
-                String requestNumber = resultSet.getString("request_number");
+                int requestId = resultSet.getInt("id");
 
-                repairRequestListView.getItems().add(requestNumber);
+                repairRequestListView.getItems().add(String.valueOf(requestId));
                 repairRequestListView.setCellFactory(param -> {
                     return new ListCell<String>() {
                         @Override
@@ -253,6 +239,28 @@ public class ResponsibleRequestsTabController implements Initializable {
         }
     }
 
+
+    @FXML
+    public void clearFilters(ActionEvent event) {
+        // Очистка выбора с чекбоксов состояний
+        for (Node node : statesVBox.getChildren()) {
+            if (node instanceof CheckBox) {
+                ((CheckBox) node).setSelected(false);
+            }
+        }
+
+        // Очистка выбора с чекбоксов приоритета
+        for (Node node : priorityVBox.getChildren()) {
+            if (node instanceof CheckBox) {
+                ((CheckBox) node).setSelected(false);
+            }
+        }
+
+        // Очистка полей под дату и номер заявки
+        dateFilterTF.clear();
+        idFilterTF.clear();
+    }
+
     @FXML
     public void onActionRefresh(ActionEvent event) {
         repairRequestListView.getItems().clear();
@@ -261,53 +269,96 @@ public class ResponsibleRequestsTabController implements Initializable {
 
 
     public void onActionSave(ActionEvent event) {
+        Connection connection = null;
+        PreparedStatement preparedStatement1 = null;
+        PreparedStatement preparedStatement2 = null;
+        PreparedStatement updateRespAssignStatement = null;
+        PreparedStatement updateAdditAssignStatement = null;
+
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "UPDATE repair_requests SET equipment_serial_number = ?, equipment_type = ?, description = ?, notes = ?, " +
-                            "state = ?, repairer = ?, priority = ?, register_date = ?, finish_date = ? WHERE request_number = ?");
-            preparedStatement.setString(1, equipSerialField.getText());
-            preparedStatement.setString(2, equipTypeField.getText());
-            preparedStatement.setString(3, descriptionTextArea.getText());
-            preparedStatement.setString(4, commentsTextArea.getText());
-            preparedStatement.setString(5, stateChoice.getValue());
-            preparedStatement.setString(6, repairerChoice.getValue());
-            preparedStatement.setString(7, priorityChoice.getValue());
-            preparedStatement.setDate(8, Date.valueOf(registerDateTF.getText()));
-            preparedStatement.setDate(9, Date.valueOf(finishDateTF.getText()));
-            preparedStatement.setInt(10, currentRequestNumber);
-            preparedStatement.executeUpdate();
 
+            // Обновляем запись в таблице requests
+            String updateQuery = "UPDATE requests " +
+                    "SET equip_num = ?, equip_type = ?, problem_desc = ?, request_comments = ?, status = ? " +
+                    "WHERE id = ?";
+            preparedStatement1 = connection.prepareStatement(updateQuery);
+            preparedStatement1.setString(1, equipSerialField.getText());
+            preparedStatement1.setString(2, equipTypeField.getText());
+            preparedStatement1.setString(3, descriptionTextArea.getText());
+            preparedStatement1.setString(4, commentsTextArea.getText());
+            preparedStatement1.setString(5, stateChoice.getValue());
+            preparedStatement1.setInt(6, currentRequestNumber);
+            preparedStatement1.executeUpdate();
+
+            // Обновляем запись в таблице request_processes
+            String updateProcessQuery = "UPDATE request_processes " +
+                    "SET priority = ?, date_finish_plan = ? " +
+                    "WHERE request_id = ?";
+            preparedStatement2 = connection.prepareStatement(updateProcessQuery);
+            preparedStatement2.setString(1, priorityChoice.getValue());
+            preparedStatement2.setDate(2, Date.valueOf(finishDateTF.getText()));
+            preparedStatement2.setInt(3, currentRequestNumber);
+            preparedStatement2.executeUpdate();
+
+            // Обновляем запись в таблице assignments для ответственного исполнителя
+            String updateRespAssignQuery = "INSERT INTO assignments (id_request, member_id, is_responsible) " +
+                    "VALUES (?, (SELECT id FROM members WHERE name = ?), ?) " +
+                    "ON CONFLICT (id_request, is_responsible) DO UPDATE " +
+                    "SET member_id = EXCLUDED.member_id";
+            updateRespAssignStatement = connection.prepareStatement(updateRespAssignQuery);
+            updateRespAssignStatement.setInt(1, currentRequestNumber);
+            updateRespAssignStatement.setString(2, responsibleRepairerChoice.getValue());
+            updateRespAssignStatement.setBoolean(3, true);
+            updateRespAssignStatement.executeUpdate();
+
+            if (additionalRepairerChoice.getValue().equals("Нет")) {
+                updateAdditAssignStatement = connection.prepareStatement(
+                        "DELETE FROM assignments WHERE is_responsible = false AND id_request = " + currentRequestNumber);
+                updateAdditAssignStatement.executeUpdate();
+            } else {
+                // Обновляем запись в таблице assignments для дополнительного исполнителя
+                String updateAdditAssignQuery = "INSERT INTO assignments (id_request, member_id, is_responsible) " +
+                        "VALUES (?, (SELECT id FROM members WHERE name = ?), ?) " +
+                        "ON CONFLICT (id_request, is_responsible) DO UPDATE " +
+                        "SET member_id = EXCLUDED.member_id";
+                updateAdditAssignStatement = connection.prepareStatement(updateAdditAssignQuery);
+                updateAdditAssignStatement.setInt(1, currentRequestNumber);
+                updateAdditAssignStatement.setString(2, additionalRepairerChoice.getValue());
+                updateAdditAssignStatement.setBoolean(3, false);
+                updateAdditAssignStatement.executeUpdate();
+            }
 
             MyAlert.showInfoAlert("Информация по заявке обновлена успешно.");
 
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
-            MyAlert.showErrorAlert("Ошибка при регистрации заявки.");
+            MyAlert.showErrorAlert("Ошибка при обновлении информации по заявке.");
+
         } finally {
+            // Закрываем все ресурсы в блоке finally
             try {
-                connection.close();
+                if (preparedStatement1 != null) {
+                    preparedStatement1.close();
+                }
+                if (preparedStatement2 != null) {
+                    preparedStatement2.close();
+                }
+                if (updateRespAssignStatement != null) {
+                    updateRespAssignStatement.close();
+                }
+                if (updateAdditAssignStatement != null) {
+                    updateAdditAssignStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
 
-
-    public void onActionDelete(ActionEvent actionEvent) {
-        int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
-        if (selectedIndex != -1) {
-            String columnSearch = repairRequestListView.getItems().get(selectedIndex);
-//            String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
-            String columnSearchName = "request_number";
-            String selectedTable = "repair_requests";
-            repairRequestListView.getItems().remove(selectedIndex);
-            clientPostgreSQL = ClientPostgreSQL.getInstance();
-            clientPostgreSQL.deleteRowTable(selectedTable, columnSearchName, columnSearch);
-            moreInfoPane.setVisible(false);
-            MyAlert.showInfoAlert("Заявка успешно удалена");
-        }
-    }
 
     public void onActionCheckReport(ActionEvent actionEvent) {
         // TODO: логика открытия отчёта
@@ -316,39 +367,85 @@ public class ResponsibleRequestsTabController implements Initializable {
 
     private void showMoreInfo(int requestNumber) {
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT * FROM repair_requests WHERE request_number = ?";
+            String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
+                    "r.equip_num, r.status, rp.priority, rr.date_start, rp.date_finish_plan, r.request_comments " +
+                    "FROM requests r " +
+                    "JOIN request_regs rr ON r.id = rr.request_id " +
+                    "JOIN request_processes rp ON r.id = rp.request_id " +
+                    "WHERE r.id = ?";
+
+            String assignRespQuery = "SELECT m.name AS responsible_repairer " +
+                    "FROM assignments a " +
+                    "JOIN members m ON a.member_id = m.id " +
+                    "WHERE a.id_request = ? AND is_responsible = true";
+
+            String assignAdditQuery = "SELECT m.name AS additional_repairer " +
+                    "FROM assignments a " +
+                    "JOIN members m ON a.member_id = m.id " +
+                    "WHERE a.id_request = ? AND is_responsible = false";
+
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setInt(1, requestNumber);
+
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
-                        requestNumberLabel.setText("Заявка №" + resultSet.getString(1));
-                        equipTypeField.setText(resultSet.getString("equipment_type"));
-                        descriptionTextArea.setText(resultSet.getString("description"));
+                        requestNumberLabel.setText("Заявка №" + resultSet.getString("id"));
+                        equipTypeField.setText(resultSet.getString("equip_type"));
+                        descriptionTextArea.setText(resultSet.getString("problem_desc"));
                         clientNameLabel.setText("ФИО: " + resultSet.getString("client_name"));
                         clientPhoneLabel.setText("Телефон: " + resultSet.getString("client_phone"));
-                        equipSerialField.setText(resultSet.getString("equipment_serial_number"));
-                        commentsTextArea.setText(resultSet.getString("notes"));
-                        stateChoice.setValue(resultSet.getString("state"));
+                        equipSerialField.setText(resultSet.getString("equip_num"));
+                        commentsTextArea.setText(resultSet.getString("request_comments"));
+                        stateChoice.setValue(resultSet.getString("status"));
                         priorityChoice.setValue(resultSet.getString("priority"));
-                        repairerChoice.setValue(resultSet.getString("repairer"));
 
-                        registerDateTF.setText(resultSet.getDate("register_date").toString());
-                        finishDateTF.setText(resultSet.getDate("finish_date").toString());
+                        // Преобразуем даты из SQL Date в строковый формат для отображения
+                        registerDateTF.setText(resultSet.getDate("date_start").toString());
+                        finishDateTF.setText(resultSet.getDate("date_finish_plan").toString());
 
-                        if (stateChoice.getValue().equals("Выполнено") ||
-                                stateChoice.getValue().equals("Закрыта")) {
+                        // Отображение кнопки для проверки отчета в зависимости от состояния
+                        String currentState = resultSet.getString("status");
+
+                        if (currentState.equals("Выполнено") || currentState.equals("Закрыта")) {
                             checkReportBtn.setVisible(true);
                         } else {
                             checkReportBtn.setVisible(false);
                         }
+
+
+                        responsibleRepairerChoice.setValue("");
+                        // Запрос для получения имени ответственного исполнителя
+                        try (PreparedStatement responsibleRepairerStatement = connection.prepareStatement(assignRespQuery)) {
+                            responsibleRepairerStatement.setInt(1, requestNumber);
+
+                            try (ResultSet responsibleRepairerResult = responsibleRepairerStatement.executeQuery()) {
+                                if (responsibleRepairerResult.next()) {
+                                    String responsibleRepairer = responsibleRepairerResult.getString("responsible_repairer");
+                                    responsibleRepairerChoice.setValue(responsibleRepairer);
+                                }
+                            }
+                        }
+
+                        additionalRepairerChoice.setValue("Нет");
+                        // Запрос для получения имени доп исполнителя
+                        try (PreparedStatement additionalRepairerStatement = connection.prepareStatement(assignAdditQuery)) {
+                            additionalRepairerStatement.setInt(1, requestNumber);
+
+                            try (ResultSet additionalRepairerResult = additionalRepairerStatement.executeQuery()) {
+                                if (additionalRepairerResult.next()) {
+                                    String additionalRepairer = additionalRepairerResult.getString("additional_repairer");
+                                    additionalRepairerChoice.setValue(additionalRepairer);
+                                }
+                            }
+                        }
+
                         moreInfoPane.setVisible(true);
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            MyAlert.showErrorAlert("Ошибка при загрузке дополнительной информации о заявке.");
         }
     }
-
-
 }
