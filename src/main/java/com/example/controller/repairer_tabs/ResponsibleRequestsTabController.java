@@ -3,6 +3,8 @@ package com.example.controller.repairer_tabs;
 import com.example.bdclient.ClientPostgreSQL;
 import com.example.bdclient.DB;
 import com.example.controller.ListItemController;
+import com.example.controller.MainViewController;
+import com.example.controller.dialogs.DialogAddReportController;
 import com.example.controller.dialogs.MyAlert;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,9 +13,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -55,7 +59,7 @@ public class ResponsibleRequestsTabController implements Initializable {
     // TODO: в зависимости от того, есть ли уже отчёт для этой заявки или нет,
     //  текст на кнопке должен быть либо "Создать отчёт", либо "Посмотреть отчёт",
     //  и при клике на кнопку должна выполняться соответствующая логика
-    public Button checkReportBtn;
+    public Button createOrCheckReportBtn;
 
     private ClientPostgreSQL clientPostgreSQL;
     private final String DB_URL = DB.URL;
@@ -70,12 +74,18 @@ public class ResponsibleRequestsTabController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoPane.setVisible(false);
-        checkReportBtn.setVisible(false);
+        createOrCheckReportBtn.setVisible(false);
         clientPostgreSQL = ClientPostgreSQL.getInstance();
 
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
-            initialQuery = "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
+            initialQuery = "SELECT r.id " +
+                    "FROM requests r " +
+                    "JOIN assignments a ON r.id = a.id_request " +
+                    "WHERE r.status != 'Новая' " +
+                    "AND a.member_id = " + MainViewController.userID + " " +
+                    "AND a.is_responsible = true " +
+                    "ORDER BY r.id";
             query = initialQuery;
             loadRepairRequests(connection, query);
         } catch (SQLException e) {
@@ -107,9 +117,13 @@ public class ResponsibleRequestsTabController implements Initializable {
     public void applyFilters(ActionEvent event) {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
 
-        StringBuilder queryBuilder = new StringBuilder("SELECT r.id FROM requests r " +
+        StringBuilder queryBuilder = new StringBuilder("SELECT r.id " +
+                "FROM requests r " +
                 "JOIN request_processes rp ON r.id = rp.request_id " +
-                "WHERE r.status != 'Новая' AND ");
+                "JOIN assignments a ON r.id = a.id_request " +
+                "WHERE r.status != 'Новая' " +
+                "AND a.member_id = " + MainViewController.userID + " " +
+                "AND a.is_responsible = true AND ");
 
         List<String> conditions = new ArrayList<>();
 
@@ -331,6 +345,8 @@ public class ResponsibleRequestsTabController implements Initializable {
 
             MyAlert.showInfoAlert("Информация по заявке обновлена успешно.");
 
+            showMoreInfo(currentRequestNumber);
+
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
             MyAlert.showErrorAlert("Ошибка при обновлении информации по заявке.");
@@ -360,12 +376,58 @@ public class ResponsibleRequestsTabController implements Initializable {
     }
 
 
-    public void onActionCheckReport(ActionEvent actionEvent) {
-        // TODO: логика открытия отчёта
-        MyAlert.showInfoAlert("*Типа вывели отчёт для заявки №" + currentRequestNumber + "*");
+    public void onActionCreateOrCheckReport(ActionEvent actionEvent) {
+
+        if (createOrCheckReportBtn.getText().equals("Посмотреть отчёт")) {
+            Connection connection;
+            try {
+                connection = DriverManager.getConnection(DB.URL, DB.ROOT_LOGIN, DB.ROOT_PASS);
+                PreparedStatement preparedStatement =
+                        connection.prepareStatement("SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    // TODO: логика открытия отчёта
+                    String report =
+                            "Номер заявки: " + resultSet.getInt(1) + "\n\n" +
+                                    "Тип ремонта: " + resultSet.getString(2) + "\n\n" +
+                                    "Время выполнения, дней: " + resultSet.getString(3) + "\n\n" +
+                                    "Стоимость: " + resultSet.getDouble(4) + "\n\n" +
+                                    "Ресурсы: " + resultSet.getString(5) + "\n\n" +
+                                    "Причина неисправности: " + resultSet.getString(6) + "\n\n" +
+                                    "Оказанная помощь: " + resultSet.getString(7);
+                    MyAlert.showInfoAlert(report);
+                } else {
+                    MyAlert.showInfoAlert("Отчёт для заявки №" + currentRequestNumber + " отсутствует");
+                }
+                preparedStatement.close();
+                connection.close();
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+
+        } else {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/dialogs/DialogAddReport.fxml"));
+                DialogAddReportController dialogAddReportController = new DialogAddReportController(currentRequestNumber);
+                loader.setController(dialogAddReportController);
+
+                // Передача текущего контроллера как userData
+                Stage stage = new Stage();
+                stage.setTitle("Добавление нового сотрудника");
+                stage.setScene(new Scene(loader.load()));
+                stage.setUserData(this); // передаем ResponsibleRequestsTabController
+
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
-    private void showMoreInfo(int requestNumber) {
+    public void showMoreInfo(int requestNumber) {
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
             String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
                     "r.equip_num, r.status, rp.priority, rr.date_start, rp.date_finish_plan, r.request_comments " +
@@ -407,9 +469,18 @@ public class ResponsibleRequestsTabController implements Initializable {
                         String currentState = resultSet.getString("status");
 
                         if (currentState.equals("Выполнено") || currentState.equals("Закрыта")) {
-                            checkReportBtn.setVisible(true);
+                            Connection connection1 = clientPostgreSQL.getConnection();
+                            PreparedStatement statement =
+                                    connection1.prepareStatement("SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
+                            ResultSet resultSet1 = statement.executeQuery();
+                            if (resultSet1.next()) {
+                                createOrCheckReportBtn.setText("Посмотреть отчёт");
+                            } else {
+                                createOrCheckReportBtn.setText("Создать отчёт");
+                            }
+                            createOrCheckReportBtn.setVisible(true);
                         } else {
-                            checkReportBtn.setVisible(false);
+                            createOrCheckReportBtn.setVisible(false);
                         }
 
 

@@ -15,6 +15,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,6 +36,7 @@ public class FinishedRequestTabController implements Initializable {
     public TextField equipSerialField;
     public TextArea commentsTextArea;
     public ScrollPane moreInfoScrollPane;
+    public BorderPane moreInfoBorderPane;
     public Button refreshListBtn;
     private ClientPostgreSQL clientPostgreSQL;
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
@@ -48,7 +50,7 @@ public class FinishedRequestTabController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        moreInfoScrollPane.setVisible(false);
+        moreInfoBorderPane.setVisible(false);
         qrImageView.setImage(generateQRCode(QR_CODE_URL));
         loadRepairRequests();
 
@@ -130,7 +132,7 @@ public class FinishedRequestTabController implements Initializable {
 
 
                 MyAlert.showInfoAlert("Заявка успешно закрыта.");
-                moreInfoScrollPane.setVisible(false);
+                moreInfoBorderPane.setVisible(false);
                 repairRequestListView.getItems().remove(repairRequestListView.getSelectionModel().getSelectedIndex());
 
             } catch (SQLException | NumberFormatException e) {
@@ -167,7 +169,7 @@ public class FinishedRequestTabController implements Initializable {
                         equipSerialField.setText(resultSet.getString("equip_num"));
                         commentsTextArea.setText(resultSet.getString("request_comments"));
 
-                        moreInfoScrollPane.setVisible(true);
+                        moreInfoBorderPane.setVisible(true);
                     }
                 }
             }

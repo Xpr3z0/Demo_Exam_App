@@ -22,7 +22,7 @@
                   </Button>
                </bottom>
             </BorderPane>
-            <BorderPane>
+            <BorderPane fx:id="moreInfoBorderPane">
                <center>
                   <ScrollPane fx:id="moreInfoScrollPane" fitToWidth="true" prefHeight="200.0" prefWidth="200.0">
                      <content>

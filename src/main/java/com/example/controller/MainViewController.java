@@ -12,10 +12,12 @@ import java.util.ResourceBundle;
 
 public class MainViewController implements Initializable {
     public static String role;
+    public static int userID;
     @FXML
     public TabPane mainPane;
-    public MainViewController(String role) {
-        this.role = role;
+    public MainViewController(String role, int userID) {
+        MainViewController.role = role;
+        MainViewController.userID = userID;
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -33,7 +35,7 @@ public class MainViewController implements Initializable {
 
         } else if (role.equals("repairer")) {
             addTab("Ответственные заявки",  "/view/repairer_tabs/ResponsibleRequestsTab.fxml");
-            addTab("Обычные заявки",        "");
+            addTab("Обычные заявки",        "/view/repairer_tabs/CommonRequestsTab.fxml");
             addTab("Заказ запчастей",       "/view/repairer_tabs/OrdersTab.fxml");
         }
     }

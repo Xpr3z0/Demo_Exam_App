@@ -28,6 +28,7 @@ public class LoginController implements Initializable {
     private PasswordField txtPassword;
     private final boolean autoLogin = false;
     private String role;
+    private int userID;
     @FXML
     private void btnLoginAction(ActionEvent event) {
         String login = txtUsername.getText();
@@ -40,7 +41,7 @@ public class LoginController implements Initializable {
             if (jdbcClient.accessToDB(DB.ROOT_LOGIN, DB.ROOT_PASS)) {
                 try (Connection connection = DriverManager.getConnection(DB.URL,DB.ROOT_LOGIN, DB.ROOT_PASS)) {
                     // SQL запрос для проверки логина и пароля
-                    String sql = "SELECT role FROM members WHERE login = ? AND pass = ?";
+                    String sql = "SELECT * FROM members WHERE login = ? AND pass = ?";
 
                     // Создание подготовленного запроса
                     try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -52,6 +53,7 @@ public class LoginController implements Initializable {
                         try (ResultSet resultSet = statement.executeQuery()) {
                             // Если есть результаты, извлекаем роль
                             if (resultSet.next()) {
+                                userID = resultSet.getInt("id");
                                 role = resultSet.getString("role");
                                 System.out.println("Роль пользователя: " + role);
                                 logIn();
@@ -92,7 +94,7 @@ public class LoginController implements Initializable {
 
     private void logIn() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
-        MainViewController mainViewController = new MainViewController(role);
+        MainViewController mainViewController = new MainViewController(role, userID);
         loader.setController(mainViewController);
         Stage stage = new Stage();
         stage.setTitle("Demo Exam App");

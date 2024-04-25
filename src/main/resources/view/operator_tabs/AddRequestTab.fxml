@@ -80,18 +80,9 @@
                           </columnConstraints>
                           <rowConstraints>
                               <RowConstraints fillHeight="false" maxHeight="-Infinity" minHeight="10.0" prefHeight="100.0" valignment="TOP" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="100.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                           <children>
                               <Label text="Описание проблемы" GridPane.valignment="TOP">
-                                  <GridPane.margin>
-                                      <Insets />
-                                  </GridPane.margin>
-                           <font>
-                              <Font name="Arial" size="16.0" />
-                           </font>
-                        </Label>
-                              <Label text="Примечания" GridPane.rowIndex="1" GridPane.valignment="TOP">
                                   <GridPane.margin>
                                       <Insets />
                                   </GridPane.margin>
@@ -103,7 +94,6 @@
                            <font>
                               <Font name="Arial" size="14.0" />
                            </font></TextArea>
-                        <TextArea fx:id="commentsTextArea" prefHeight="150.0" prefWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                           </children>
                       </GridPane>
                </children>

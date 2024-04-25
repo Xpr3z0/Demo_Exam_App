@@ -22,7 +22,6 @@ public class AddRequestTabController implements Initializable {
     public TextField serialNumberField;
     public TextField equipTypeField;
     public TextArea descTextArea;
-    public TextArea commentsTextArea;
     public Button createRequestBtn;
     public Button clearFieldsBtn;
     private ClientPostgreSQL clientPostgreSQL;
@@ -43,7 +42,6 @@ public class AddRequestTabController implements Initializable {
         serialNumberField.clear();
         equipTypeField.clear();
         descTextArea.clear();
-        commentsTextArea.clear();
     }
 
     public void onActionClear(ActionEvent event) {
@@ -58,14 +56,13 @@ public class AddRequestTabController implements Initializable {
             connection.setAutoCommit(false); // Отключаем автокоммит для управления транзакцией
 
             // Вставка данных в таблицу requests
-            String insertRequestsSql = "INSERT INTO requests (equip_num, equip_type, problem_desc, request_comments, status) VALUES (?, ?, ?, ?, ?)";
+            String insertRequestsSql = "INSERT INTO requests (equip_num, equip_type, problem_desc, status) VALUES (?, ?, ?, ?)";
             PreparedStatement insertRequestsStatement = connection.prepareStatement(insertRequestsSql);
 
             insertRequestsStatement.setString(1, serialNumberField.getText());
             insertRequestsStatement.setString(2, equipTypeField.getText());
             insertRequestsStatement.setString(3, descTextArea.getText());
-            insertRequestsStatement.setString(4, commentsTextArea.getText());
-            insertRequestsStatement.setString(5, "Новая");
+            insertRequestsStatement.setString(4, "Новая");
 
             insertRequestsStatement.executeUpdate();
 

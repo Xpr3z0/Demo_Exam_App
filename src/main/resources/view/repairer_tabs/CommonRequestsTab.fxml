@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="1800.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.repairer_tabs.ResponsibleRequestsTabController">
+<BorderPane prefHeight="1800.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.repairer_tabs.CommonRequestsTabController">
    <center>
       <SplitPane dividerPositions="0.5" minHeight="200.0" minWidth="200.0" BorderPane.alignment="CENTER">
          <items>
@@ -82,14 +82,14 @@
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <ChoiceBox fx:id="stateChoice" prefWidth="150.0" />
+                              <ChoiceBox fx:id="stateChoice" disable="true" prefWidth="150.0" />
                               <Separator layoutX="30.0" layoutY="589.0" prefWidth="200.0" />
                               <Label layoutX="30.0" layoutY="791.0" text="Приоритет">
                                  <font>
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <ChoiceBox fx:id="priorityChoice" layoutX="30.0" layoutY="827.0" prefWidth="150.0" />
+                              <ChoiceBox fx:id="priorityChoice" disable="true" layoutX="30.0" layoutY="827.0" prefWidth="150.0" />
                               <Separator prefWidth="200.0" />
                               <Label layoutX="30.0" layoutY="612.0" text="Ответственный исполнитель">
                                  <font>
@@ -103,7 +103,7 @@
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <ChoiceBox fx:id="additionalRepairerChoice" layoutX="30.0" layoutY="1035.0" maxWidth="300.0" minWidth="-Infinity" prefWidth="300.0" />
+                              <ChoiceBox fx:id="additionalRepairerChoice" disable="true" layoutX="30.0" layoutY="1035.0" maxWidth="300.0" minWidth="-Infinity" prefWidth="300.0" />
                               <Separator layoutX="30.0" layoutY="1080.0" prefWidth="200.0" />
                               <Label layoutX="30.0" layoutY="791.0" text="Дата регистрации заявки">
                                  <font>
@@ -117,7 +117,7 @@
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="finishDateTF" />
+                              <TextField fx:id="finishDateTF" editable="false" />
                               <Separator layoutX="30.0" layoutY="976.0" prefWidth="200.0" />
                               <HBox alignment="CENTER" spacing="20.0" />
                            </children>

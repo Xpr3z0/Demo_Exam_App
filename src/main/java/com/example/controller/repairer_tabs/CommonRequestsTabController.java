@@ -1,8 +1,10 @@
-package com.example.controller.manager_tabs;
+package com.example.controller.repairer_tabs;
 
 import com.example.bdclient.ClientPostgreSQL;
 import com.example.bdclient.DB;
 import com.example.controller.ListItemController;
+import com.example.controller.MainViewController;
+import com.example.controller.dialogs.DialogAddReportController;
 import com.example.controller.dialogs.MyAlert;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,9 +13,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class AllRequestsTabController implements Initializable {
+public class CommonRequestsTabController implements Initializable {
     public VBox statesVBox;
     public VBox priorityVBox;
     public TextField dateFilterTF;
@@ -51,7 +55,12 @@ public class AllRequestsTabController implements Initializable {
     public TextField finishDateTF;
 
     public Button refreshListBtn;
-    public Button checkReportBtn;
+
+    // TODO: в зависимости от того, есть ли уже отчёт для этой заявки или нет,
+    //  текст на кнопке должен быть либо "Создать отчёт", либо "Посмотреть отчёт",
+    //  и при клике на кнопку должна выполняться соответствующая логика
+    public Button createOrCheckReportBtn;
+
     private ClientPostgreSQL clientPostgreSQL;
     private final String DB_URL = DB.URL;
     private final String LOGIN = DB.ROOT_LOGIN;
@@ -65,12 +74,18 @@ public class AllRequestsTabController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoPane.setVisible(false);
-        checkReportBtn.setVisible(false);
+        createOrCheckReportBtn.setVisible(false);
         clientPostgreSQL = ClientPostgreSQL.getInstance();
 
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
-            initialQuery = "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
+            initialQuery = "SELECT r.id " +
+                    "FROM requests r " +
+                    "JOIN assignments a ON r.id = a.id_request " +
+                    "WHERE r.status != 'Новая' " +
+                    "AND a.member_id = " + MainViewController.userID + " " +
+                    "AND a.is_responsible = false " +
+                    "ORDER BY r.id";
             query = initialQuery;
             loadRepairRequests(connection, query);
         } catch (SQLException e) {
@@ -102,9 +117,13 @@ public class AllRequestsTabController implements Initializable {
     public void applyFilters(ActionEvent event) {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
 
-        StringBuilder queryBuilder = new StringBuilder("SELECT r.id FROM requests r " +
+        StringBuilder queryBuilder = new StringBuilder("SELECT r.id " +
+                "FROM requests r " +
                 "JOIN request_processes rp ON r.id = rp.request_id " +
-                "WHERE r.status != 'Новая' AND ");
+                "JOIN assignments a ON r.id = a.id_request " +
+                "WHERE r.status != 'Новая' " +
+                "AND a.member_id = " + MainViewController.userID + " " +
+                "AND a.is_responsible = false AND ");
 
         List<String> conditions = new ArrayList<>();
 
@@ -263,6 +282,7 @@ public class AllRequestsTabController implements Initializable {
     }
 
 
+    // TODO: можно упростить, т.к. по факту он может редактировать только комментарии
     public void onActionSave(ActionEvent event) {
         Connection connection = null;
         PreparedStatement preparedStatement1 = null;
@@ -326,6 +346,8 @@ public class AllRequestsTabController implements Initializable {
 
             MyAlert.showInfoAlert("Информация по заявке обновлена успешно.");
 
+            showMoreInfo(currentRequestNumber);
+
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
             MyAlert.showErrorAlert("Ошибка при обновлении информации по заявке.");
@@ -355,7 +377,7 @@ public class AllRequestsTabController implements Initializable {
     }
 
 
-    public void onActionCheckReport(ActionEvent actionEvent) {
+    public void onActionCreateOrCheckReport(ActionEvent actionEvent) {
 
         Connection connection;
         try {
@@ -367,12 +389,12 @@ public class AllRequestsTabController implements Initializable {
                 // TODO: логика открытия отчёта
                 String report =
                         "Номер заявки: " + resultSet.getInt(1) + "\n\n" +
-                        "Тип ремонта: " + resultSet.getString(2) + "\n\n" +
-                        "Время выполнения, дней: " + resultSet.getString(3) + "\n\n" +
-                        "Стоимость: " + resultSet.getDouble(4) + "\n\n" +
-                        "Ресурсы: " + resultSet.getString(5) + "\n\n" +
-                        "Причина неисправности: " + resultSet.getString(6) + "\n\n" +
-                        "Оказанная помощь: " + resultSet.getString(7);
+                                "Тип ремонта: " + resultSet.getString(2) + "\n\n" +
+                                "Время выполнения, дней: " + resultSet.getString(3) + "\n\n" +
+                                "Стоимость: " + resultSet.getDouble(4) + "\n\n" +
+                                "Ресурсы: " + resultSet.getString(5) + "\n\n" +
+                                "Причина неисправности: " + resultSet.getString(6) + "\n\n" +
+                                "Оказанная помощь: " + resultSet.getString(7);
                 MyAlert.showInfoAlert(report);
             } else {
                 MyAlert.showInfoAlert("Отчёт для заявки №" + currentRequestNumber + " отсутствует");
@@ -383,9 +405,10 @@ public class AllRequestsTabController implements Initializable {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
     }
 
-    private void showMoreInfo(int requestNumber) {
+    public void showMoreInfo(int requestNumber) {
         try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
             String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
                     "r.equip_num, r.status, rp.priority, rr.date_start, rp.date_finish_plan, r.request_comments " +
@@ -427,9 +450,17 @@ public class AllRequestsTabController implements Initializable {
                         String currentState = resultSet.getString("status");
 
                         if (currentState.equals("Выполнено") || currentState.equals("Закрыта")) {
-                            checkReportBtn.setVisible(true);
+                            Connection connection1 = clientPostgreSQL.getConnection();
+                            PreparedStatement statement =
+                                    connection1.prepareStatement("SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
+                            ResultSet resultSet1 = statement.executeQuery();
+                            if (resultSet1.next()) {
+                                createOrCheckReportBtn.setVisible(true);
+                            } else {
+                                createOrCheckReportBtn.setVisible(false);
+                            }
                         } else {
-                            checkReportBtn.setVisible(false);
+                            createOrCheckReportBtn.setVisible(false);
                         }
 
 

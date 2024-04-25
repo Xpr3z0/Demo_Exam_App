@@ -64,7 +64,7 @@ public class ClientPostgreSQL {
             System.out.println(e);
             return false;
         }
-        createTablesIfNeeded();
+//        createTablesIfNeeded();
         return true;
     }
 
