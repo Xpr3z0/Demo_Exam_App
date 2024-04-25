@@ -1,6 +1,5 @@
 package com.example.controller;
 
-import com.example.bdclient.ClientPostgreSQL;
 import com.example.bdclient.DB;
 import com.example.controller.dialogs.MyAlert;
 import javafx.application.Platform;
@@ -37,9 +36,9 @@ public class LoginController implements Initializable {
             if (login.isEmpty() || password.isEmpty()) {
                 throw new Exception("Укажите логин или пароль!");
             }
-            ClientPostgreSQL jdbcClient = ClientPostgreSQL.getInstance();
-            if (jdbcClient.accessToDB(DB.ROOT_LOGIN, DB.ROOT_PASS)) {
-                try (Connection connection = DriverManager.getConnection(DB.URL,DB.ROOT_LOGIN, DB.ROOT_PASS)) {
+            DB db = DB.getInstance();
+            if (db.accessToDB(DB.ROOT_LOGIN, DB.ROOT_PASS)) {
+                try (Connection connection = DriverManager.getConnection(DB.URL, DB.ROOT_LOGIN, DB.ROOT_PASS)) {
                     // SQL запрос для проверки логина и пароля
                     String sql = "SELECT * FROM members WHERE login = ? AND pass = ?";
 

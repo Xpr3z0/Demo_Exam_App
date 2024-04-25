@@ -1,6 +1,6 @@
 package com.example.controller.operator_tabs;
 
-import com.example.bdclient.ClientPostgreSQL;
+import com.example.bdclient.DB;
 import com.example.controller.ListItemController;
 import com.example.controller.dialogs.MyAlert;
 import com.google.zxing.BarcodeFormat;
@@ -38,7 +38,7 @@ public class FinishedRequestTabController implements Initializable {
     public ScrollPane moreInfoScrollPane;
     public BorderPane moreInfoBorderPane;
     public Button refreshListBtn;
-    private ClientPostgreSQL clientPostgreSQL;
+    private DB db;
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
     private final String LOGIN = "postgres";
     private final String PASSWORD = "root";
@@ -120,16 +120,17 @@ public class FinishedRequestTabController implements Initializable {
     public void onActionCloseRequest(ActionEvent actionEvent) {
         int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
-            clientPostgreSQL = ClientPostgreSQL.getInstance();
+            db = DB.getInstance();
             Connection connection = null;
 
             try {
-                connection = clientPostgreSQL.getConnection();
+                connection = db.getConnection();
 //                connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
                 PreparedStatement preparedStatement = connection.prepareStatement(
                         "UPDATE requests SET status = 'Закрыта' WHERE id = " + currentRequestNumber);
                 preparedStatement.executeUpdate();
 
+                db.closeConnection();
 
                 MyAlert.showInfoAlert("Заявка успешно закрыта.");
                 moreInfoBorderPane.setVisible(false);
@@ -140,7 +141,7 @@ public class FinishedRequestTabController implements Initializable {
                 MyAlert.showErrorAlert("Ошибка при закрытии заявки.");
             } finally {
                 try {
-                    clientPostgreSQL.closeConnection();
+                    db.closeConnection();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

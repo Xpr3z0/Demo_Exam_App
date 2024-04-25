@@ -1,6 +1,5 @@
 package com.example.controller.repairer_tabs;
 
-import com.example.bdclient.ClientPostgreSQL;
 import com.example.bdclient.DB;
 import com.example.controller.ListItemController;
 import com.example.controller.MainViewController;
@@ -56,12 +55,9 @@ public class ResponsibleRequestsTabController implements Initializable {
 
     public Button refreshListBtn;
 
-    // TODO: в зависимости от того, есть ли уже отчёт для этой заявки или нет,
-    //  текст на кнопке должен быть либо "Создать отчёт", либо "Посмотреть отчёт",
-    //  и при клике на кнопку должна выполняться соответствующая логика
     public Button createOrCheckReportBtn;
 
-    private ClientPostgreSQL clientPostgreSQL;
+    private DB db;
     private final String DB_URL = DB.URL;
     private final String LOGIN = DB.ROOT_LOGIN;
     private final String PASSWORD = DB.ROOT_PASS;
@@ -75,7 +71,7 @@ public class ResponsibleRequestsTabController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoPane.setVisible(false);
         createOrCheckReportBtn.setVisible(false);
-        clientPostgreSQL = ClientPostgreSQL.getInstance();
+        db = DB.getInstance();
 
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
@@ -96,7 +92,7 @@ public class ResponsibleRequestsTabController implements Initializable {
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании", "Закрыта");
 
-        ArrayList<String> repairersList = clientPostgreSQL.stringListQuery("name", "members", "role = 'repairer'", "name");
+        ArrayList<String> repairersList = db.stringListQuery("name", "members", "role = 'repairer'", "name");
         responsibleRepairerChoice.getItems().addAll(repairersList);
         additionalRepairerChoice.getItems().add("Нет");
         additionalRepairerChoice.getItems().addAll(repairersList);
@@ -469,7 +465,7 @@ public class ResponsibleRequestsTabController implements Initializable {
                         String currentState = resultSet.getString("status");
 
                         if (currentState.equals("Выполнено") || currentState.equals("Закрыта")) {
-                            Connection connection1 = clientPostgreSQL.getConnection();
+                            Connection connection1 = db.getConnection();
                             PreparedStatement statement =
                                     connection1.prepareStatement("SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
                             ResultSet resultSet1 = statement.executeQuery();

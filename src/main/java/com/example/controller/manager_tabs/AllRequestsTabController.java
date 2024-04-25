@@ -1,6 +1,5 @@
 package com.example.controller.manager_tabs;
 
-import com.example.bdclient.ClientPostgreSQL;
 import com.example.bdclient.DB;
 import com.example.controller.ListItemController;
 import com.example.controller.dialogs.MyAlert;
@@ -52,7 +51,7 @@ public class AllRequestsTabController implements Initializable {
 
     public Button refreshListBtn;
     public Button checkReportBtn;
-    private ClientPostgreSQL clientPostgreSQL;
+    private DB db;
     private final String DB_URL = DB.URL;
     private final String LOGIN = DB.ROOT_LOGIN;
     private final String PASSWORD = DB.ROOT_PASS;
@@ -66,7 +65,7 @@ public class AllRequestsTabController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoPane.setVisible(false);
         checkReportBtn.setVisible(false);
-        clientPostgreSQL = ClientPostgreSQL.getInstance();
+        db = DB.getInstance();
 
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
@@ -81,7 +80,7 @@ public class AllRequestsTabController implements Initializable {
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании", "Закрыта");
 
-        ArrayList<String> repairersList = clientPostgreSQL.stringListQuery("name", "members", "role = 'repairer'", "name");
+        ArrayList<String> repairersList = db.stringListQuery("name", "members", "role = 'repairer'", "name");
         responsibleRepairerChoice.getItems().addAll(repairersList);
         additionalRepairerChoice.getItems().add("Нет");
         additionalRepairerChoice.getItems().addAll(repairersList);

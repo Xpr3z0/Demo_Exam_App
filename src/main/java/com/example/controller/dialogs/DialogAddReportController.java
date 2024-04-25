@@ -1,24 +1,17 @@
 package com.example.controller.dialogs;
 
-import com.example.bdclient.ClientPostgreSQL;
-import com.example.controller.BDController;
-import com.example.controller.manager_tabs.UsersTabController;
+import com.example.bdclient.DB;
 import com.example.controller.repairer_tabs.ResponsibleRequestsTabController;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -63,7 +56,7 @@ public class DialogAddReportController implements Initializable {
         }
         sqlAdd += "');";
 
-        boolean success = ClientPostgreSQL.getInstance().simpleQuery(selectedTable, sqlAdd);
+        boolean success = DB.getInstance().simpleQuery(selectedTable, sqlAdd);
         if (success) {
             MyAlert.showInfoAlert("Отчёт успешно создан");
         } else {

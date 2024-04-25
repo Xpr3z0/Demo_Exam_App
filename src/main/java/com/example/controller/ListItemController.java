@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.bdclient.DB;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
@@ -7,10 +8,6 @@ import javafx.scene.control.Button;
 import java.sql.*;
 
 public class ListItemController {
-    private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
-    private final String LOGIN = "postgres";
-    private final String PASSWORD = "root";
-
     @FXML
     private Label requestNumberLabel;
 
@@ -19,12 +16,6 @@ public class ListItemController {
 
     @FXML
     private Label clientNameLabel;
-
-
-    public int getRequestNumber() {
-        return requestNumber;
-    }
-
     private int requestNumber;
 
     public void setRequestNumber(int requestNumber) {
@@ -41,14 +32,8 @@ public class ListItemController {
         clientNameLabel.setText("Клиент: " + clientName);
     }
 
-    @FXML
-    private void showDetails() {
-        // Реализуйте логику для отображения подробной информации о заявке
-        System.out.println("Show details clicked for request number: " + requestNumberLabel.getText());
-    }
-
     public void updateFromDatabase(int requestNumber) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(DB.URL, DB.ROOT_LOGIN, DB.ROOT_PASS)) {
             String query = "SELECT r.problem_desc, rr.client_name " +
                     "FROM requests r " +
                     "JOIN request_regs rr ON r.id = rr.request_id " +

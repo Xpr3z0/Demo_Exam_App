@@ -1,8 +1,7 @@
 package com.example.controller.manager_tabs;
 
-import com.example.controller.dialogs.DialogAddDrugsController;
+import com.example.bdclient.DB;
 import com.example.controller.dialogs.DialogAddEmployeesController;
-import com.example.controller.dialogs.DialogAddRecordsController;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -15,9 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
-import com.example.bdclient.ClientPostgreSQL;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,8 +27,7 @@ import java.util.ResourceBundle;
 
 public class UsersTabController implements Initializable {
     public TableView tableView;
-    public Label lblLogin;
-    private ClientPostgreSQL jdbcClient;
+    private DB db;
     private String selectedTable = "members";
     private List<String> columnNames;
     public Button addNewBtn;
@@ -44,8 +40,7 @@ public class UsersTabController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        jdbcClient = ClientPostgreSQL.getInstance();
-        lblLogin.setText(jdbcClient.getLogin());
+        db = DB.getInstance();
         if (!selectedTable.isEmpty()) {
             updateTable();
         }
@@ -57,7 +52,7 @@ public class UsersTabController implements Initializable {
     }
 
     private void fillingTable() {
-        ResultSet resultSet = jdbcClient.getTable(selectedTable);
+        ResultSet resultSet = db.getTable(selectedTable, "id");
         try {
             if (resultSet != null) {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -99,7 +94,7 @@ public class UsersTabController implements Initializable {
                     TablePosition tablePosition = event.getTablePosition();
                     String columnSearch = ((List) tableView.getItems().get(tablePosition.getRow())).get(0).toString();
                     String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
-                    if (!jdbcClient.updateTable(selectedTable, event.getTableColumn().getText(), event.getNewValue().toString(), columnSearchName, columnSearch)) {
+                    if (!db.updateTable(selectedTable, event.getTableColumn().getText(), event.getNewValue().toString(), columnSearchName, columnSearch)) {
                         new Alert(Alert.AlertType.WARNING, "Данные не изменены.").showAndWait();
                     }
                 }
@@ -125,7 +120,7 @@ public class UsersTabController implements Initializable {
             String columnSearch = ((List) tableView.getItems().get(selectedIndex)).get(0).toString();
             String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
             tableView.getItems().remove(selectedIndex);
-            jdbcClient.deleteRowTable(selectedTable, columnSearchName, columnSearch);
+            db.deleteRowTable(selectedTable, columnSearchName, columnSearch);
             updateTable();
         }
     }

@@ -1,6 +1,6 @@
 package com.example.controller.manager_tabs;
 
-import com.example.bdclient.ClientPostgreSQL;
+import com.example.bdclient.DB;
 import com.example.controller.ListItemController;
 import com.example.controller.dialogs.MyAlert;
 import javafx.event.ActionEvent;
@@ -35,7 +35,7 @@ public class NewRequestsTabController implements Initializable {
     public ChoiceBox<String> priorityChoice;
     public DatePicker finishDatePicker;
     public Button refreshListBtn;
-    private ClientPostgreSQL clientPostgreSQL;
+    private DB db;
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
     private final String LOGIN = "postgres";
     private final String PASSWORD = "root";
@@ -46,11 +46,11 @@ public class NewRequestsTabController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoBorderPane.setVisible(false);
-        clientPostgreSQL = ClientPostgreSQL.getInstance();
+        db = DB.getInstance();
         loadRepairRequests();
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
 
-        ArrayList<String> repairersList = clientPostgreSQL.stringListQuery("name", "members", "role = 'repairer'", "name");
+        ArrayList<String> repairersList = db.stringListQuery("name", "members", "role = 'repairer'", "name");
         responsibleRepairerChoice.getItems().addAll(repairersList);
         additionalRepairerChoice.getItems().add("Нет");
         additionalRepairerChoice.getItems().addAll(repairersList);

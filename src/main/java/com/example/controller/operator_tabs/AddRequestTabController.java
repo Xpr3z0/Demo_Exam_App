@@ -1,6 +1,6 @@
 package com.example.controller.operator_tabs;
 
-import com.example.bdclient.ClientPostgreSQL;
+import com.example.bdclient.DB;
 import com.example.controller.dialogs.MyAlert;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,7 +24,7 @@ public class AddRequestTabController implements Initializable {
     public TextArea descTextArea;
     public Button createRequestBtn;
     public Button clearFieldsBtn;
-    private ClientPostgreSQL clientPostgreSQL;
+    private DB db;
     private Connection connection = null;
 
     private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
@@ -52,7 +52,7 @@ public class AddRequestTabController implements Initializable {
     public void onActionAdd(ActionEvent event) {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
+            connection = DriverManager.getConnection(DB.URL, DB.ROOT_LOGIN, DB.ROOT_PASS);
             connection.setAutoCommit(false); // Отключаем автокоммит для управления транзакцией
 
             // Вставка данных в таблицу requests

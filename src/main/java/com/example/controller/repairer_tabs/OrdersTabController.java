@@ -1,6 +1,6 @@
 package com.example.controller.repairer_tabs;
 
-import com.example.bdclient.ClientPostgreSQL;
+import com.example.bdclient.DB;
 import com.example.controller.dialogs.DialogAddEmployeesController;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
@@ -28,7 +28,7 @@ import java.util.ResourceBundle;
 public class OrdersTabController implements Initializable {
     public TableView tableView;
     public Label lblLogin;
-    private ClientPostgreSQL jdbcClient;
+    private DB db;
     private String selectedTable = "members";
     private List<String> columnNames;
     public Button addNewBtn;
@@ -41,8 +41,7 @@ public class OrdersTabController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        jdbcClient = ClientPostgreSQL.getInstance();
-        lblLogin.setText(jdbcClient.getLogin());
+        db = DB.getInstance();
         if (!selectedTable.isEmpty()) {
             updateTable();
         }
@@ -54,7 +53,7 @@ public class OrdersTabController implements Initializable {
     }
 
     private void fillingTable() {
-        ResultSet resultSet = jdbcClient.getTable(selectedTable);
+        ResultSet resultSet = db.getTable(selectedTable, "id");
         try {
             if (resultSet != null) {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -96,7 +95,7 @@ public class OrdersTabController implements Initializable {
                     TablePosition tablePosition = event.getTablePosition();
                     String columnSearch = ((List) tableView.getItems().get(tablePosition.getRow())).get(0).toString();
                     String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
-                    if (!jdbcClient.updateTable(selectedTable, event.getTableColumn().getText(), event.getNewValue().toString(), columnSearchName, columnSearch)) {
+                    if (!db.updateTable(selectedTable, event.getTableColumn().getText(), event.getNewValue().toString(), columnSearchName, columnSearch)) {
                         new Alert(Alert.AlertType.WARNING, "Данные не изменены.").showAndWait();
                     }
                 }
@@ -122,7 +121,7 @@ public class OrdersTabController implements Initializable {
             String columnSearch = ((List) tableView.getItems().get(selectedIndex)).get(0).toString();
             String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
             tableView.getItems().remove(selectedIndex);
-            jdbcClient.deleteRowTable(selectedTable, columnSearchName, columnSearch);
+            db.deleteRowTable(selectedTable, columnSearchName, columnSearch);
             updateTable();
         }
     }

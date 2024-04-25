@@ -1,7 +1,6 @@
 package com.example.controller.dialogs;
 
-import com.example.bdclient.ClientPostgreSQL;
-import com.example.controller.BDController;
+import com.example.bdclient.DB;
 import com.example.controller.manager_tabs.UsersTabController;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -52,7 +51,7 @@ public class DialogAddEmployeesController implements Initializable {
         }
         sqlAdd += "');";
 
-        boolean success = ClientPostgreSQL.getInstance().simpleQuery(selectedTable, sqlAdd);
+        boolean success = DB.getInstance().simpleQuery(selectedTable, sqlAdd);
         if (success) {
             MyAlert.showInfoAlert("Запись добавлена успешно");
         } else {
@@ -75,18 +74,4 @@ public class DialogAddEmployeesController implements Initializable {
         // ...
     }
 
-    private void showTable() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/dialogs/BD.fxml"));
-            BDController dialogAddController = new BDController(selectedTable);
-            loader.setController(dialogAddController);
-            Stage stage = new Stage();
-            stage.setTitle("Таблица");
-            stage.setScene(new Scene(loader.load()));
-            stage.show();
-            ((Stage) idBottomAdd.getScene().getWindow()).close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
