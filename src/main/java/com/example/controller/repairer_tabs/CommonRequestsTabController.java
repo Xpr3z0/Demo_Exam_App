@@ -55,12 +55,7 @@ public class CommonRequestsTabController implements Initializable {
     public TextField finishDateTF;
 
     public Button refreshListBtn;
-
-    // TODO: в зависимости от того, есть ли уже отчёт для этой заявки или нет,
-    //  текст на кнопке должен быть либо "Создать отчёт", либо "Посмотреть отчёт",
-    //  и при клике на кнопку должна выполняться соответствующая логика
     public Button createOrCheckReportBtn;
-
     private ClientPostgreSQL clientPostgreSQL;
     private final String DB_URL = DB.URL;
     private final String LOGIN = DB.ROOT_LOGIN;

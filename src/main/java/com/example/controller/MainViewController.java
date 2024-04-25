@@ -31,7 +31,7 @@ public class MainViewController implements Initializable {
             addTab("Новые заявки",  "/view/manager_tabs/NewRequestsTab.fxml");
             addTab("Все заявки",    "/view/manager_tabs/AllRequestsTab.fxml");
             addTab("Пользователи",  "/view/manager_tabs/UsersTab.fxml");
-            addTab("Статистика",    "");
+            addTab("Статистика",    "/view/manager_tabs/StatisticsTab.fxml");
 
         } else if (role.equals("repairer")) {
             addTab("Ответственные заявки",  "/view/repairer_tabs/ResponsibleRequestsTab.fxml");
