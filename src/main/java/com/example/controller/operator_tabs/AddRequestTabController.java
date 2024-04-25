@@ -27,10 +27,6 @@ public class AddRequestTabController implements Initializable {
     private Database database;
     private Connection connection = null;
 
-    private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
-    private final String LOGIN = "postgres";
-    private final String PASSWORD = "root";
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 

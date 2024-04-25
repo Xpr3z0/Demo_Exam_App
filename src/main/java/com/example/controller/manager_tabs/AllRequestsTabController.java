@@ -52,9 +52,6 @@ public class AllRequestsTabController implements Initializable {
     public Button refreshListBtn;
     public Button checkReportBtn;
     private Database database;
-    private final String DB_URL = Database.URL;
-    private final String LOGIN = Database.ROOT_LOGIN;
-    private final String PASSWORD = Database.ROOT_PASS;
     private Connection connection = null;
     private String initialQuery;
     private String query;
@@ -68,7 +65,7 @@ public class AllRequestsTabController implements Initializable {
         database = Database.getInstance();
 
         try {
-            connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
+            connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
             initialQuery = "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
             query = initialQuery;
             loadRepairRequests(connection, query);
@@ -164,7 +161,7 @@ public class AllRequestsTabController implements Initializable {
         queryBuilder.append(" ORDER BY r.id");
 
         // Выполняем SQL-запрос и заполняем ListView
-        try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
             String query = queryBuilder.toString();
             loadRepairRequests(connection, query);
 
@@ -270,7 +267,7 @@ public class AllRequestsTabController implements Initializable {
         PreparedStatement updateAdditAssignStatement = null;
 
         try {
-            connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
+            connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
 
             // Обновляем запись в таблице requests
             String updateQuery = "UPDATE requests " +
@@ -385,7 +382,7 @@ public class AllRequestsTabController implements Initializable {
     }
 
     private void showMoreInfo(int requestNumber) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
             String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
                     "r.equip_num, r.status, rp.priority, rr.date_start, rp.date_finish_plan, r.request_comments " +
                     "FROM requests r " +
