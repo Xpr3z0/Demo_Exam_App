@@ -1,6 +1,7 @@
 package com.example.controller.operator_tabs;
 
-import com.example.bdclient.DB;
+
+import com.example.bdclient.Database;
 import com.example.controller.ListItemController;
 import com.example.controller.dialogs.MyAlert;
 import com.google.zxing.BarcodeFormat;
@@ -22,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class FinishedRequestTabController implements Initializable {
@@ -38,10 +40,7 @@ public class FinishedRequestTabController implements Initializable {
     public ScrollPane moreInfoScrollPane;
     public BorderPane moreInfoBorderPane;
     public Button refreshListBtn;
-    private DB db;
-    private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
-    private final String LOGIN = "postgres";
-    private final String PASSWORD = "root";
+    private Database database;
     private int currentRequestNumber = -1;
 
     private final String QR_CODE_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
@@ -66,48 +65,34 @@ public class FinishedRequestTabController implements Initializable {
 
 
     private void loadRepairRequests() {
-        // Здесь вы должны использовать JDBC для подключения к вашей БД
-        // и получения данных о заявках на ремонт
+        repairRequestListView.getItems().clear();
 
-        try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT id FROM requests WHERE status = 'Выполнено' ORDER BY id";
+        ArrayList<String> idList = database.stringListQuery(
+                "id", "requests", "status = 'Выполнено'", "id");
+        repairRequestListView.getItems().addAll(idList);
+        repairRequestListView.setCellFactory(param -> {
+            return new ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
 
-            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    while (resultSet.next()) {
-                        // Добавляем элементы в ListView
-                        String requestNumber = resultSet.getString("id");
-
-                        repairRequestListView.getItems().add(requestNumber);
-                        repairRequestListView.setCellFactory(param -> {
-                            return new ListCell<String>() {
-                                @Override
-                                protected void updateItem(String item, boolean empty) {
-                                    super.updateItem(item, empty);
-
-                                    if (item == null || empty) {
-                                        setGraphic(null);
-                                    } else {
-                                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
-                                        try {
-                                            Parent root = loader.load();
-                                            ListItemController controller = loader.getController();
-                                            controller.setRequestNumber(Integer.parseInt(item));
-                                            setGraphic(root);
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                            setGraphic(null);
-                                        }
-                                    }
-                                }
-                            };
-                        });
+                    if (item == null || empty) {
+                        setGraphic(null);
+                    } else {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
+                        try {
+                            Parent root = loader.load();
+                            ListItemController controller = loader.getController();
+                            controller.setRequestNumber(Integer.parseInt(item));
+                            setGraphic(root);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            setGraphic(null);
+                        }
                     }
                 }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            };
+        });
     }
 
     @FXML
@@ -120,37 +105,22 @@ public class FinishedRequestTabController implements Initializable {
     public void onActionCloseRequest(ActionEvent actionEvent) {
         int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
-            db = DB.getInstance();
-            Connection connection = null;
+            boolean updateSuccessful =
+                    database.updateQuery("requests", "status = 'Закрыта'", "id = " + currentRequestNumber);
 
-            try {
-                connection = db.getConnection();
-//                connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
-                PreparedStatement preparedStatement = connection.prepareStatement(
-                        "UPDATE requests SET status = 'Закрыта' WHERE id = " + currentRequestNumber);
-                preparedStatement.executeUpdate();
-
-                db.closeConnection();
-
+            if (updateSuccessful) {
                 MyAlert.showInfoAlert("Заявка успешно закрыта.");
                 moreInfoBorderPane.setVisible(false);
                 repairRequestListView.getItems().remove(repairRequestListView.getSelectionModel().getSelectedIndex());
 
-            } catch (SQLException | NumberFormatException e) {
-                e.printStackTrace();
+            } else {
                 MyAlert.showErrorAlert("Ошибка при закрытии заявки.");
-            } finally {
-                try {
-                    db.closeConnection();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
 
     private void showMoreInfo(int requestNumber) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
             String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
                     "r.equip_num, r.request_comments " +
                     "FROM requests r " +

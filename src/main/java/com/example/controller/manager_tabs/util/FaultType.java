@@ -1,4 +1,4 @@
-package com.example.controller.manager_tabs;
+package com.example.controller.manager_tabs.util;
 
 public class FaultType {
     private String repairType;

@@ -1,6 +1,6 @@
 package com.example.controller.manager_tabs;
 
-import com.example.bdclient.DB;
+import com.example.bdclient.Database;
 import com.example.controller.ListItemController;
 import com.example.controller.dialogs.MyAlert;
 import javafx.event.ActionEvent;
@@ -35,10 +35,7 @@ public class NewRequestsTabController implements Initializable {
     public ChoiceBox<String> priorityChoice;
     public DatePicker finishDatePicker;
     public Button refreshListBtn;
-    private DB db;
-    private final String DB_URL = "jdbc:postgresql://localhost:8888/postgres";
-    private final String LOGIN = "postgres";
-    private final String PASSWORD = "root";
+    private Database database;
     private Connection connection = null;
     private int currentRequestNumber = -1;
 
@@ -46,11 +43,11 @@ public class NewRequestsTabController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoBorderPane.setVisible(false);
-        db = DB.getInstance();
+        database = Database.getInstance();
         loadRepairRequests();
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
 
-        ArrayList<String> repairersList = db.stringListQuery("name", "members", "role = 'repairer'", "name");
+        ArrayList<String> repairersList = database.stringListQuery("name", "members", "role = 'repairer'", "name");
         responsibleRepairerChoice.getItems().addAll(repairersList);
         additionalRepairerChoice.getItems().add("Нет");
         additionalRepairerChoice.getItems().addAll(repairersList);
@@ -71,46 +68,34 @@ public class NewRequestsTabController implements Initializable {
     private void loadRepairRequests() {
         // Здесь вы должны использовать JDBC для подключения к вашей БД
         // и получения данных о заявках на ремонт
+        repairRequestListView.getItems().clear();
 
-        try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
-            String query = "SELECT id FROM requests WHERE status = 'Новая' ORDER BY id";
+        ArrayList<String> idList = database.stringListQuery(
+                "id", "requests", "status = 'Новая'", "id");
+        repairRequestListView.getItems().addAll(idList);
+        repairRequestListView.setCellFactory(param -> {
+            return new ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
 
-            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    while (resultSet.next()) {
-                        // Добавляем элементы в ListView
-                        String requestNumber = resultSet.getString("id");
-
-                        repairRequestListView.getItems().add(requestNumber);
-                        repairRequestListView.setCellFactory(param -> {
-                            return new ListCell<String>() {
-                                @Override
-                                protected void updateItem(String item, boolean empty) {
-                                    super.updateItem(item, empty);
-
-                                    if (item == null || empty) {
-                                        setGraphic(null);
-                                    } else {
-                                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
-                                        try {
-                                            Parent root = loader.load();
-                                            ListItemController controller = loader.getController();
-                                            controller.setRequestNumber(Integer.parseInt(item));
-                                            setGraphic(root);
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                            setGraphic(null);
-                                        }
-                                    }
-                                }
-                            };
-                        });
+                    if (item == null || empty) {
+                        setGraphic(null);
+                    } else {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
+                        try {
+                            Parent root = loader.load();
+                            ListItemController controller = loader.getController();
+                            controller.setRequestNumber(Integer.parseInt(item));
+                            setGraphic(root);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            setGraphic(null);
+                        }
                     }
                 }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            };
+        });
     }
 
     @FXML
@@ -128,7 +113,7 @@ public class NewRequestsTabController implements Initializable {
         PreparedStatement additAssignPrepStatement = null;
 
         try {
-            connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
+            connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
 
             // Обновление записи в таблице requests
             String updateQuery = "UPDATE requests SET equip_num = ?, equip_type = ?, problem_desc = ?, " +
@@ -206,44 +191,22 @@ public class NewRequestsTabController implements Initializable {
     public void onActionDelete(ActionEvent actionEvent) {
         int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
-            int selectedItemId = Integer.parseInt(repairRequestListView.getItems().get(selectedIndex));
+            String selectedItemId = repairRequestListView.getItems().get(selectedIndex);
 
-            try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
+            database.deleteRowTable("assignments", "id_request", selectedItemId);
+            database.deleteRowTable("request_processes", "request_id", selectedItemId);
+            database.deleteRowTable("request_regs", "request_id", selectedItemId);
+            boolean deletedSuccessfully = database.deleteRowTable("requests", "id", selectedItemId);
 
-                // Удаляем запись из таблицы assignments (если существует)
-                PreparedStatement deleteAssignmentsStatement =
-                        connection.prepareStatement("DELETE FROM assignments WHERE id_request = " + selectedItemId);
-                int rowsDeletedAssignments = deleteAssignmentsStatement.executeUpdate();
-
-                // Удаляем запись из таблицы request_processes (если существует)
-                PreparedStatement deleteProcessesStatement =
-                        connection.prepareStatement("DELETE FROM request_processes WHERE request_id = " + selectedItemId);
-                int rowsDeletedProcesses = deleteProcessesStatement.executeUpdate();
-
-                // Удаляем запись из таблицы request_regs (если существует)
-                PreparedStatement deleteRegsStatement =
-                        connection.prepareStatement("DELETE FROM request_regs WHERE request_id = " + selectedItemId);
-                int rowsDeletedRegs = deleteRegsStatement.executeUpdate();
-
-                // Удаляем запись из таблицы requests
-                PreparedStatement deleteRequestsStatement =
-                        connection.prepareStatement("DELETE FROM requests WHERE id = " + selectedItemId);
-                int rowsDeletedRequests = deleteRequestsStatement.executeUpdate();
-
-
-                // TODO: мб проверку условий доделать
-                if (rowsDeletedRequests > 0) {
-                    MyAlert.showInfoAlert("Заявка успешно удалена.");
-                    repairRequestListView.getItems().remove(selectedIndex);
-                    moreInfoBorderPane.setVisible(false);
-                } else {
-                    MyAlert.showErrorAlert("Не удалось удалить заявку. Возможно, такая заявка не существует.");
-                }
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-                MyAlert.showErrorAlert("Ошибка при удалении заявки.");
+            // TODO: мб проверку условий доделать
+            if (deletedSuccessfully) {
+                MyAlert.showInfoAlert("Заявка успешно удалена.");
+                repairRequestListView.getItems().remove(Integer.parseInt(selectedItemId));
+                moreInfoBorderPane.setVisible(false);
+            } else {
+                MyAlert.showErrorAlert("Не удалось удалить заявку. Возможно, такая заявка не существует.");
             }
+
         } else {
             MyAlert.showErrorAlert("Выберите заявку для удаления.");
         }
@@ -251,7 +214,7 @@ public class NewRequestsTabController implements Initializable {
 
 
     private void showMoreInfo(int requestNumber) {
-        try (Connection connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
             String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
                     "r.equip_num, r.request_comments " +
                     "FROM requests r " +
@@ -284,7 +247,4 @@ public class NewRequestsTabController implements Initializable {
             MyAlert.showErrorAlert("Ошибка при загрузке дополнительной информации о заявке.");
         }
     }
-
-
-
 }

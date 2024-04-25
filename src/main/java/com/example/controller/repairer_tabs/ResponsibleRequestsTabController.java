@@ -1,6 +1,6 @@
 package com.example.controller.repairer_tabs;
 
-import com.example.bdclient.DB;
+import com.example.bdclient.Database;
 import com.example.controller.ListItemController;
 import com.example.controller.MainViewController;
 import com.example.controller.dialogs.DialogAddReportController;
@@ -57,10 +57,10 @@ public class ResponsibleRequestsTabController implements Initializable {
 
     public Button createOrCheckReportBtn;
 
-    private DB db;
-    private final String DB_URL = DB.URL;
-    private final String LOGIN = DB.ROOT_LOGIN;
-    private final String PASSWORD = DB.ROOT_PASS;
+    private Database database;
+    private final String DB_URL = Database.URL;
+    private final String LOGIN = Database.ROOT_LOGIN;
+    private final String PASSWORD = Database.ROOT_PASS;
     private Connection connection = null;
     private String initialQuery;
     private String query;
@@ -71,7 +71,7 @@ public class ResponsibleRequestsTabController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoPane.setVisible(false);
         createOrCheckReportBtn.setVisible(false);
-        db = DB.getInstance();
+        database = Database.getInstance();
 
         try {
             connection = DriverManager.getConnection(DB_URL, LOGIN, PASSWORD);
@@ -92,7 +92,7 @@ public class ResponsibleRequestsTabController implements Initializable {
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании", "Закрыта");
 
-        ArrayList<String> repairersList = db.stringListQuery("name", "members", "role = 'repairer'", "name");
+        ArrayList<String> repairersList = database.stringListQuery("name", "members", "role = 'repairer'", "name");
         responsibleRepairerChoice.getItems().addAll(repairersList);
         additionalRepairerChoice.getItems().add("Нет");
         additionalRepairerChoice.getItems().addAll(repairersList);
@@ -377,7 +377,7 @@ public class ResponsibleRequestsTabController implements Initializable {
         if (createOrCheckReportBtn.getText().equals("Посмотреть отчёт")) {
             Connection connection;
             try {
-                connection = DriverManager.getConnection(DB.URL, DB.ROOT_LOGIN, DB.ROOT_PASS);
+                connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
                 PreparedStatement preparedStatement =
                         connection.prepareStatement("SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -411,7 +411,7 @@ public class ResponsibleRequestsTabController implements Initializable {
 
                 // Передача текущего контроллера как userData
                 Stage stage = new Stage();
-                stage.setTitle("Добавление нового сотрудника");
+                stage.setTitle("Добавление отчёта");
                 stage.setScene(new Scene(loader.load()));
                 stage.setUserData(this); // передаем ResponsibleRequestsTabController
 
@@ -465,7 +465,7 @@ public class ResponsibleRequestsTabController implements Initializable {
                         String currentState = resultSet.getString("status");
 
                         if (currentState.equals("Выполнено") || currentState.equals("Закрыта")) {
-                            Connection connection1 = db.getConnection();
+                            Connection connection1 = database.getConnection();
                             PreparedStatement statement =
                                     connection1.prepareStatement("SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
                             ResultSet resultSet1 = statement.executeQuery();

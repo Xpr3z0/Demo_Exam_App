@@ -1,38 +1,33 @@
 package com.example.controller.dialogs;
 
-import com.example.bdclient.DB;
+import com.example.bdclient.Database;
 import com.example.controller.manager_tabs.UsersTabController;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class DialogAddEmployeesController implements Initializable {
+public class DialogAddMembersController implements Initializable {
     public VBox valuesVbox;
     public Button idBottomAdd;
-    private String selectedTable;
     public ChoiceBox<String> roleChoice;
 
 
-    public DialogAddEmployeesController(String selectedTable) {
-        this.selectedTable = selectedTable;
+    public DialogAddMembersController() {
+
     }
 
 
     public void onCancelBtn(ActionEvent actionEvent) {
         ((Stage) idBottomAdd.getScene().getWindow()).close();
-//        showTable();
     }
 
 
@@ -44,6 +39,7 @@ public class DialogAddEmployeesController implements Initializable {
             if (list.get(i) instanceof TextField) {
                 sqlAdd += "'" + ((TextField) list.get(i)).getText();
                 sqlAdd += (i + 1 != list.size()) ? "'," : "";
+
             } else if (list.get(i) instanceof ChoiceBox) {
                 sqlAdd += "'" + ((ChoiceBox) list.get(i)).getValue();
                 sqlAdd += (i + 1 != list.size()) ? "'," : "";
@@ -51,7 +47,7 @@ public class DialogAddEmployeesController implements Initializable {
         }
         sqlAdd += "');";
 
-        boolean success = DB.getInstance().simpleQuery(selectedTable, sqlAdd);
+        boolean success = Database.getInstance().simpleQuery(sqlAdd);
         if (success) {
             MyAlert.showInfoAlert("Запись добавлена успешно");
         } else {
@@ -71,7 +67,6 @@ public class DialogAddEmployeesController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         roleChoice.getItems().addAll("operator", "manager", "repairer");
-        // ...
     }
 
 }

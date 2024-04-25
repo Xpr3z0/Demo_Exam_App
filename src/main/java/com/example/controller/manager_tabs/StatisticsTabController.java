@@ -1,6 +1,7 @@
 package com.example.controller.manager_tabs;
 
-import com.example.bdclient.DB;
+import com.example.bdclient.Database;
+import com.example.controller.manager_tabs.util.FaultType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -36,7 +37,7 @@ public class StatisticsTabController {
     private void calculateStatistics() {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(DB.URL, DB.ROOT_LOGIN, DB.ROOT_PASS);
+            connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
 
             int numOfCompletedRequests = getNumOfCompletedRequests(connection);
             numOfCompletedRequestsTF.setText(String.valueOf(numOfCompletedRequests));

@@ -1,9 +1,8 @@
 package com.example.controller;
 
-import com.example.bdclient.DB;
+import com.example.bdclient.Database;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.Button;
 
 import java.sql.*;
 
@@ -33,7 +32,7 @@ public class ListItemController {
     }
 
     public void updateFromDatabase(int requestNumber) {
-        try (Connection connection = DriverManager.getConnection(DB.URL, DB.ROOT_LOGIN, DB.ROOT_PASS)) {
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
             String query = "SELECT r.problem_desc, rr.client_name " +
                     "FROM requests r " +
                     "JOIN request_regs rr ON r.id = rr.request_id " +

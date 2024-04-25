@@ -5,24 +5,4 @@
 
 <TabPane fx:id="mainPane" prefHeight="720.0" prefWidth="1050.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="30.0" tabMinWidth="180.0" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
 
-    <Tab style="-fx-font-size: 14; -fx-font-family: Arial;" text="Заявки">
-        <content>
-            <fx:include fx:id="requestsTab" source="tabs/RequestsTab.fxml" />
-        </content>
-    </Tab>
-    <Tab style="-fx-font-family: Arial; -fx-font-size: 14;" text="Новая заявка">
-        <content>
-            <fx:include fx:id="newRequestTab" source="tabs/NewRequestTab.fxml" />
-        </content>
-    </Tab>
-    <Tab style="-fx-font-family: Arial; -fx-font-size: 14;" text="Настройки">
-        <content>
-            <fx:include fx:id="settingsTab" source="tabs/SettingsTab.fxml" />
-        </content>
-    </Tab>
-    <Tab style="-fx-font-family: Arial; -fx-font-size: 14;" text="Профиль">
-        <content>
-            <fx:include fx:id="profileTab" source="tabs/ProfileTab.fxml" />
-        </content>
-    </Tab>
 </TabPane>

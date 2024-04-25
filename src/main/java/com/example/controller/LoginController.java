@@ -1,6 +1,6 @@
 package com.example.controller;
 
-import com.example.bdclient.DB;
+import com.example.bdclient.Database;
 import com.example.controller.dialogs.MyAlert;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -25,7 +25,6 @@ public class LoginController implements Initializable {
     private TextField txtUsername;
     @FXML
     private PasswordField txtPassword;
-    private final boolean autoLogin = false;
     private String role;
     private int userID;
     @FXML
@@ -36,9 +35,9 @@ public class LoginController implements Initializable {
             if (login.isEmpty() || password.isEmpty()) {
                 throw new Exception("Укажите логин или пароль!");
             }
-            DB db = DB.getInstance();
-            if (db.accessToDB(DB.ROOT_LOGIN, DB.ROOT_PASS)) {
-                try (Connection connection = DriverManager.getConnection(DB.URL, DB.ROOT_LOGIN, DB.ROOT_PASS)) {
+            Database database = Database.getInstance();
+            if (database.accessToDB(Database.ROOT_LOGIN, Database.ROOT_PASS)) {
+                try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
                     // SQL запрос для проверки логина и пароля
                     String sql = "SELECT * FROM members WHERE login = ? AND pass = ?";
 
@@ -83,27 +82,25 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-//        role = "operator";
-//        role = "manager";
-//        role = "repairer";
-        if (autoLogin) {
-            logIn();
-        }
+
     }
 
     private void logIn() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
-        MainViewController mainViewController = new MainViewController(role, userID);
-        loader.setController(mainViewController);
-        Stage stage = new Stage();
-        stage.setTitle("Demo Exam App");
         try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
+            MainViewController mainViewController = new MainViewController(role, userID);
+            loader.setController(mainViewController);
+
+            Stage stage = new Stage();
+            stage.setTitle("Demo Exam App");
             stage.setScene(new Scene(loader.load()));
+            stage.show();
+
+            Platform.runLater(() -> ((Stage) btnLogin.getScene().getWindow()).close());
+            System.out.println("Авторизация успешна прошла!");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-        stage.show();
-        Platform.runLater(() -> ((Stage) btnLogin.getScene().getWindow()).close());
-        System.out.println("Авторизация успешна прошла!");
     }
 }

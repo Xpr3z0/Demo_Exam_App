@@ -14,12 +14,12 @@
             <left>
                 <HBox alignment="CENTER_LEFT" spacing="10.0" BorderPane.alignment="CENTER">
                     <children>
-                        <Button fx:id="addNewBtn" mnemonicParsing="false" onAction="#onActionAdd" text="Добавить сотрудника">
+                        <Button fx:id="addNewBtn" mnemonicParsing="false" onAction="#onActionAdd" prefHeight="35.0" prefWidth="150.0" text="Добавить заказ">
                             <HBox.margin>
                                 <Insets />
                             </HBox.margin>
                         </Button>
-                        <Button id="deleteBtn" fx:id="deleteTable" mnemonicParsing="false" onAction="#onActionDelete" text="Удалить">
+                        <Button id="deleteBtn" fx:id="deleteTable" mnemonicParsing="false" onAction="#onActionDelete" prefHeight="35.0" prefWidth="150.0" text="Удалить">
                             <HBox.margin>
                                 <Insets />
                             </HBox.margin>

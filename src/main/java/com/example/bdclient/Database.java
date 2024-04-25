@@ -1,22 +1,18 @@
 package com.example.bdclient;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Properties;
 
-public class DB {
-    private static DB instance;
+public class Database {
+    private static Database instance;
     public static final String URL = "jdbc:postgresql://localhost:8888/postgres";
     public static final String ROOT_LOGIN = "postgres";
     public static final String ROOT_PASS = "root";
     Connection externalConnection = null;
 
-    public static DB getInstance() {
+    public static Database getInstance() {
         if (instance == null) {
-            instance = new DB();
+            instance = new Database();
         }
         return instance;
     }
@@ -185,14 +181,47 @@ public class DB {
         }
     }
 
+    public boolean updateQuery(String table, String set, String where) {
+        Connection connection = null;
 
+        try {
+            connection = DriverManager.getConnection(URL, ROOT_LOGIN, ROOT_PASS);
+            PreparedStatement preparedStatement = connection.prepareStatement(
+                    "UPDATE " + table + " SET " + set + " WHERE " + where);
 
-    public boolean simpleQuery(String selectedTable, String sql) {
+            if (preparedStatement.executeUpdate() > 0) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean simpleQuery(String sql) {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(URL, ROOT_LOGIN, ROOT_PASS);
             PreparedStatement statement = connection.prepareStatement(sql);
-            return statement.executeUpdate() != -1 ? true : false;
+
+            if (statement.executeUpdate() != -1) {
+                return true;
+            } else {
+                return false;
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
