@@ -50,6 +50,7 @@ public class FinishedRequestTabController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         moreInfoBorderPane.setVisible(false);
+        database = Database.getInstance();
         qrImageView.setImage(generateQRCode(QR_CODE_URL));
         loadRepairRequests();
 
