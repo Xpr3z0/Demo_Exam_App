@@ -153,7 +153,7 @@ public class Database {
         }
     }
 
-    public boolean deleteRowTable(String selectedTable, String columnSearchName, String columnSearch) {
+    public boolean deleteQuery(String selectedTable, String columnSearchName, String columnSearch) {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(URL, ROOT_LOGIN, ROOT_PASS);

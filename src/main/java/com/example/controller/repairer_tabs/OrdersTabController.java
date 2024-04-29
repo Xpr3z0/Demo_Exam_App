@@ -1,7 +1,6 @@
 package com.example.controller.repairer_tabs;
 
 import com.example.bdclient.Database;
-import com.example.controller.dialogs.DialogAddMembersController;
 import com.example.controller.dialogs.DialogAddOrderController;
 import com.example.controller.dialogs.MyAlert;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -123,7 +122,7 @@ public class OrdersTabController implements Initializable {
             String columnSearch = ((List) tableView.getItems().get(selectedIndex)).get(0).toString();
             String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
             tableView.getItems().remove(selectedIndex);
-            database.deleteRowTable(selectedTable, columnSearchName, columnSearch);
+            database.deleteQuery(selectedTable, columnSearchName, columnSearch);
             updateTable();
             MyAlert.showInfoAlert("Запись успешно удалена");
         }
