@@ -193,10 +193,10 @@ public class NewRequestsTabController implements Initializable {
         if (selectedIndex != -1) {
             String selectedItemId = repairRequestListView.getItems().get(selectedIndex);
 
-            database.deleteRowTable("assignments", "id_request", selectedItemId);
-            database.deleteRowTable("request_processes", "request_id", selectedItemId);
-            database.deleteRowTable("request_regs", "request_id", selectedItemId);
-            boolean deletedSuccessfully = database.deleteRowTable("requests", "id", selectedItemId);
+            database.deleteQuery("assignments", "id_request", selectedItemId);
+            database.deleteQuery("request_processes", "request_id", selectedItemId);
+            database.deleteQuery("request_regs", "request_id", selectedItemId);
+            boolean deletedSuccessfully = database.deleteQuery("requests", "id", selectedItemId);
 
             // TODO: мб проверку условий доделать
             if (deletedSuccessfully) {

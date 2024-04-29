@@ -1,5 +1,6 @@
 package com.example.controller.manager_tabs;
 
+import com.example.Request;
 import com.example.bdclient.Database;
 import com.example.controller.ListItemController;
 import com.example.controller.dialogs.MyAlert;
@@ -22,9 +23,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class AllRequestsTabController implements Initializable {
-    public VBox statesVBox;
-    public VBox priorityVBox;
-    public TextField dateFilterTF;
     public TextField idFilterTF;
 
     @FXML
@@ -52,6 +50,7 @@ public class AllRequestsTabController implements Initializable {
     private String initialQuery;
     private String query;
     private int currentRequestNumber = -1;
+    private ArrayList<Request> requestList;
 
 
     @Override
@@ -134,6 +133,7 @@ public class AllRequestsTabController implements Initializable {
     private void loadRepairRequests(Connection connection, String query) {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
 
+
         try (PreparedStatement preparedStatement = connection.prepareStatement(query);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
@@ -175,22 +175,6 @@ public class AllRequestsTabController implements Initializable {
 
     @FXML
     public void clearFilters(ActionEvent event) {
-        // Очистка выбора с чекбоксов состояний
-        for (Node node : statesVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                ((CheckBox) node).setSelected(false);
-            }
-        }
-
-        // Очистка выбора с чекбоксов приоритета
-        for (Node node : priorityVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                ((CheckBox) node).setSelected(false);
-            }
-        }
-
-        // Очистка полей под дату и номер заявки
-        dateFilterTF.clear();
         idFilterTF.clear();
     }
 
@@ -202,64 +186,69 @@ public class AllRequestsTabController implements Initializable {
 
 
     public void onActionSave(ActionEvent event) {
-        Connection connection = null;
-        PreparedStatement preparedStatement1 = null;
-        PreparedStatement preparedStatement2 = null;
-        PreparedStatement updateRespAssignStatement = null;
-        PreparedStatement updateAdditAssignStatement = null;
-
-        try {
-            connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
 
             // Обновляем запись в таблице requests
             String updateQuery = "UPDATE requests " +
                     "SET equip_num = ?, equip_type = ?, problem_desc = ?, request_comments = ?, status = ? " +
                     "WHERE id = ?";
-            preparedStatement1 = connection.prepareStatement(updateQuery);
-            preparedStatement1.setString(1, equipSerialField.getText());
-            preparedStatement1.setString(2, equipTypeField.getText());
-            preparedStatement1.setString(3, descriptionTextArea.getText());
-            preparedStatement1.setString(4, commentsTextArea.getText());
-            preparedStatement1.setString(5, stateChoice.getValue());
-            preparedStatement1.setInt(6, currentRequestNumber);
-            preparedStatement1.executeUpdate();
+            try (PreparedStatement preparedStatement1 = connection.prepareStatement(updateQuery)) {
+                preparedStatement1.setString(1, equipSerialField.getText());
+                preparedStatement1.setString(2, equipTypeField.getText());
+                preparedStatement1.setString(3, descriptionTextArea.getText());
+                preparedStatement1.setString(4, commentsTextArea.getText());
+                preparedStatement1.setString(5, stateChoice.getValue());
+                preparedStatement1.setInt(6, currentRequestNumber);
+                preparedStatement1.executeUpdate();
+            }
+
 
             // Обновляем запись в таблице request_processes
             String updateProcessQuery = "UPDATE request_processes " +
                     "SET priority = ?, date_finish_plan = ? " +
                     "WHERE request_id = ?";
-            preparedStatement2 = connection.prepareStatement(updateProcessQuery);
-            preparedStatement2.setString(1, priorityChoice.getValue());
-            preparedStatement2.setDate(2, Date.valueOf(finishDateTF.getText()));
-            preparedStatement2.setInt(3, currentRequestNumber);
-            preparedStatement2.executeUpdate();
+
+            try (PreparedStatement preparedStatement2 = connection.prepareStatement(updateProcessQuery)) {
+                preparedStatement2.setString(1, priorityChoice.getValue());
+                preparedStatement2.setDate(2, Date.valueOf(finishDateTF.getText()));
+                preparedStatement2.setInt(3, currentRequestNumber);
+                preparedStatement2.executeUpdate();
+            }
+
 
             // Добавляем или обновляем запись в таблице assignments для ответственного исполнителя
             String updateRespAssignQuery = "INSERT INTO assignments (id_request, member_id, is_responsible) " +
                     "VALUES (?, (SELECT id FROM members WHERE name = ?), ?) " +
                     "ON CONFLICT (id_request, is_responsible) DO UPDATE " +
                     "SET member_id = EXCLUDED.member_id";
-            updateRespAssignStatement = connection.prepareStatement(updateRespAssignQuery);
-            updateRespAssignStatement.setInt(1, currentRequestNumber);
-            updateRespAssignStatement.setString(2, responsibleRepairerChoice.getValue());
-            updateRespAssignStatement.setBoolean(3, true);
-            updateRespAssignStatement.executeUpdate();
+
+            try (PreparedStatement updateRespAssignStatement = connection.prepareStatement(updateRespAssignQuery)) {
+                updateRespAssignStatement.setInt(1, currentRequestNumber);
+                updateRespAssignStatement.setString(2, responsibleRepairerChoice.getValue());
+                updateRespAssignStatement.setBoolean(3, true);
+                updateRespAssignStatement.executeUpdate();
+            }
+
 
             if (additionalRepairerChoice.getValue().equals("Нет")) {
-                updateAdditAssignStatement = connection.prepareStatement(
-                        "DELETE FROM assignments WHERE is_responsible = false AND id_request = " + currentRequestNumber);
-                updateAdditAssignStatement.executeUpdate();
+                try (PreparedStatement updateAdditAssignStatement = connection.prepareStatement(
+                        "DELETE FROM assignments WHERE is_responsible = false AND id_request = " + currentRequestNumber)) {
+                    updateAdditAssignStatement.executeUpdate();
+                }
+
             } else {
                 // Обновляем запись в таблице assignments для дополнительного исполнителя
                 String updateAdditAssignQuery = "INSERT INTO assignments (id_request, member_id, is_responsible) " +
                         "VALUES (?, (SELECT id FROM members WHERE name = ?), ?) " +
                         "ON CONFLICT (id_request, is_responsible) DO UPDATE " +
                         "SET member_id = EXCLUDED.member_id";
-                updateAdditAssignStatement = connection.prepareStatement(updateAdditAssignQuery);
-                updateAdditAssignStatement.setInt(1, currentRequestNumber);
-                updateAdditAssignStatement.setString(2, additionalRepairerChoice.getValue());
-                updateAdditAssignStatement.setBoolean(3, false);
-                updateAdditAssignStatement.executeUpdate();
+
+                try (PreparedStatement updateAdditAssignStatement = connection.prepareStatement(updateAdditAssignQuery)) {
+                    updateAdditAssignStatement.setInt(1, currentRequestNumber);
+                    updateAdditAssignStatement.setString(2, additionalRepairerChoice.getValue());
+                    updateAdditAssignStatement.setBoolean(3, false);
+                    updateAdditAssignStatement.executeUpdate();
+                }
             }
 
             MyAlert.showInfoAlert("Информация по заявке обновлена успешно.");
@@ -268,27 +257,6 @@ public class AllRequestsTabController implements Initializable {
             e.printStackTrace();
             MyAlert.showErrorAlert("Ошибка при обновлении информации по заявке.");
 
-        } finally {
-            // Закрываем все ресурсы в блоке finally
-            try {
-                if (preparedStatement1 != null) {
-                    preparedStatement1.close();
-                }
-                if (preparedStatement2 != null) {
-                    preparedStatement2.close();
-                }
-                if (updateRespAssignStatement != null) {
-                    updateRespAssignStatement.close();
-                }
-                if (updateAdditAssignStatement != null) {
-                    updateAdditAssignStatement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 

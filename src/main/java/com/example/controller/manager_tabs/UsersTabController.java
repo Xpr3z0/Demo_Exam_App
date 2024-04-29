@@ -120,7 +120,7 @@ public class UsersTabController implements Initializable {
             String columnSearch = ((List) tableView.getItems().get(selectedIndex)).get(0).toString();
             String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
             tableView.getItems().remove(selectedIndex);
-            database.deleteRowTable(selectedTable, columnSearchName, columnSearch);
+            database.deleteQuery(selectedTable, columnSearchName, columnSearch);
             updateTable();
         }
     }
