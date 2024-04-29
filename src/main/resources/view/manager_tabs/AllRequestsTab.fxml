@@ -158,50 +158,6 @@
                <font>
                   <Font name="Arial Bold" size="18.0" />
                </font></Label>
-            <Label text="Статус заявки">
-               <font>
-                  <Font name="Arial" size="14.0" />
-               </font>
-               <padding>
-                  <Insets top="10.0" />
-               </padding>
-            </Label>
-            <VBox fx:id="statesVBox" prefWidth="100.0" spacing="10.0">
-               <children>
-                  <CheckBox mnemonicParsing="false" text="В работе" />
-                  <CheckBox mnemonicParsing="false" text="В ожидании" />
-                  <CheckBox mnemonicParsing="false" text="Выполнено" />
-                  <CheckBox mnemonicParsing="false" text="Закрыта" />
-               </children>
-            </VBox>
-            <Separator prefWidth="200.0" />
-            <Label text="Приоритет заявки">
-               <font>
-                  <Font name="Arial" size="14.0" />
-               </font>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-            </Label>
-            <VBox fx:id="priorityVBox" prefWidth="100.0" spacing="10.0">
-               <children>
-                  <CheckBox mnemonicParsing="false" text="Срочный" />
-                  <CheckBox mnemonicParsing="false" text="Высокий" />
-                  <CheckBox mnemonicParsing="false" text="Нормальный" />
-                  <CheckBox mnemonicParsing="false" text="Низкий" />
-               </children>
-            </VBox>
-            <Separator prefWidth="200.0" />
-            <Label text="Дата создания заявки">
-               <font>
-                  <Font name="Arial" size="14.0" />
-               </font>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
-            </Label>
-            <TextField fx:id="dateFilterTF" />
-            <Separator prefWidth="200.0" />
             <Label text="Номер заявки">
                <font>
                   <Font name="Arial" size="14.0" />

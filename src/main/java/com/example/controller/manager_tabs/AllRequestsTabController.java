@@ -42,10 +42,6 @@ public class AllRequestsTabController implements Initializable {
     public ChoiceBox<String> responsibleRepairerChoice;
     public ChoiceBox<String> additionalRepairerChoice;
     public ChoiceBox<String> priorityChoice;
-
-    // TODO: для дат заменить текстовые поля на пикеры
-//    public DatePicker registerDatePicker;
-//    public DatePicker finishDatePicker;
     public TextField registerDateTF;
     public TextField finishDateTF;
 
@@ -94,81 +90,37 @@ public class AllRequestsTabController implements Initializable {
         });
     }
 
+    // TODO: (готово) оставить только id
     @FXML
     public void applyFilters(ActionEvent event) {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
 
-        StringBuilder queryBuilder = new StringBuilder("SELECT r.id FROM requests r " +
-                "JOIN request_processes rp ON r.id = rp.request_id " +
-                "WHERE r.status != 'Новая' AND ");
+        StringBuilder queryBuilder = new StringBuilder("SELECT id FROM requests WHERE status != 'Новая' AND ");
 
-        List<String> conditions = new ArrayList<>();
-
-        // Фильтры по состояниям (используем оператор OR между выбранными состояниями)
-        List<String> stateConditions = new ArrayList<>();
-        for (Node node : statesVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                CheckBox checkbox = (CheckBox) node;
-                if (checkbox.isSelected()) {
-                    stateConditions.add("r.status = '" + checkbox.getText() + "'");
-                }
-            }
-        }
-        if (!stateConditions.isEmpty()) {
-            conditions.add("(" + String.join(" OR ", stateConditions) + ")");
-        }
-
-        // Фильтры по приоритетам (используем оператор OR между выбранными приоритетами)
-        List<String> priorityConditions = new ArrayList<>();
-        for (Node node : priorityVBox.getChildren()) {
-            if (node instanceof CheckBox) {
-                CheckBox checkbox = (CheckBox) node;
-                if (checkbox.isSelected()) {
-                    priorityConditions.add("rp.priority = '" + checkbox.getText() + "'");
-                }
-            }
-        }
-        if (!priorityConditions.isEmpty()) {
-            conditions.add("(" + String.join(" OR ", priorityConditions) + ")");
-        }
-
-        // Фильтр по дате создания заявки
-        String selectedDate = dateFilterTF.getText();
-        if (selectedDate != null && !selectedDate.trim().isEmpty()) {
-            conditions.add("r.id IN (SELECT request_id FROM request_regs WHERE date_start = '" + selectedDate + "')");
-        }
 
         // Фильтр по номеру заявки
         String requestNumber = idFilterTF.getText().trim();
         if (!requestNumber.isEmpty()) {
             try {
                 int requestId = Integer.parseInt(requestNumber);
-                conditions.add("r.id = " + requestId);
+                queryBuilder.append("id = " + requestId);
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 MyAlert.showErrorAlert("Неверный формат номера заявки.");
                 return;
             }
-        }
-
-        // Строим окончательное условие WHERE
-        if (!conditions.isEmpty()) {
-            queryBuilder.append(String.join(" AND ", conditions));
         } else {
-            queryBuilder.append("1=1"); // Если фильтры не выбраны, выбираем все заявки
+            queryBuilder.append("1=1");
         }
 
-        queryBuilder.append(" ORDER BY r.id");
+        queryBuilder.append(" ORDER BY id");
 
         // Выполняем SQL-запрос и заполняем ListView
         try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
             String query = queryBuilder.toString();
             loadRepairRequests(connection, query);
 
-            // Проверяем, видима ли подробная информация после применения фильтров
-            if (!isRequestIdInFilteredResults(currentRequestNumber)) {
-                moreInfoPane.setVisible(false);
-            }
+            moreInfoPane.setVisible(false);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -178,16 +130,6 @@ public class AllRequestsTabController implements Initializable {
         MyAlert.showInfoAlert("Фильтры успешно применены");
     }
 
-
-    private boolean isRequestIdInFilteredResults(int requestId) {
-        ObservableList<String> filteredItems = repairRequestListView.getItems();
-        for (String item : filteredItems) {
-            if (Integer.parseInt(item) == requestId) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void loadRepairRequests(Connection connection, String query) {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
