@@ -25,6 +25,7 @@ public class Request {
 
     public Request(int id) {
         this.id = id;
+        database = Database.getInstance();
         loadInfoFromDB();
     }
 
@@ -34,9 +35,6 @@ public class Request {
                                   String request_comments,
                                   String status,
                                   String priority,
-                                  String client_name,
-                                  String client_phone,
-                                  String date_start,
                                   String date_finish_plan,
                                   String responsible_repairer_name,
                                   String additional_repairer_name) {
@@ -47,13 +45,11 @@ public class Request {
         this.request_comments = request_comments;
         this.status = status;
         this.priority = priority;
-        this.client_name = client_name;
-        this.client_phone = client_phone;
-        this.date_start = date_start;
         this.date_finish_plan = date_finish_plan;
         this.responsible_repairer_name = responsible_repairer_name;
         this.additional_repairer_name = additional_repairer_name;
 
+        database = Database.getInstance();
 
         // Обновляем запись в таблице requests
         String updateRequestsQuery = String.format("UPDATE requests " +
@@ -98,14 +94,19 @@ public class Request {
         MyAlert.showInfoAlert("Информация по заявке обновлена успешно.");
     }
 
-    // TODO: будет работать только с заявками, которые есть во всех таблиццах (r, rr, rp)
     public void loadInfoFromDB() {
+        database = Database.getInstance();
         try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
             String query = "SELECT r.id, r.equip_type, r.problem_desc, rr.client_name, rr.client_phone, " +
-                    "r.equip_num, r.status, rp.priority, rr.date_start, rp.date_finish_plan, r.request_comments " +
+                    "r.equip_num, r.status, rp.priority, rr.date_start, rp.date_finish_plan, r.request_comments, " +
+                    "m1.name AS responsible_repairer_name, m2.name AS additional_repairer_name " +
                     "FROM requests r " +
                     "JOIN request_regs rr ON r.id = rr.request_id " +
-                    "JOIN request_processes rp ON r.id = rp.request_id " +
+                    "LEFT JOIN request_processes rp ON r.id = rp.request_id " +
+                    "LEFT JOIN assignments a1 ON r.id = a1.id_request AND a1.is_responsible = true " +
+                    "LEFT JOIN assignments a2 ON r.id = a2.id_request AND a2.is_responsible = false " +
+                    "LEFT JOIN members m1 ON a1.member_id = m1.id " +
+                    "LEFT JOIN members m2 ON a2.member_id = m2.id " +
                     "WHERE r.id = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -113,7 +114,7 @@ public class Request {
 
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
-                        id = Integer.parseInt(resultSet.getString("id"));
+                        id = resultSet.getInt("id");
                         equip_type = resultSet.getString("equip_type");
                         problem_desc = resultSet.getString("problem_desc");
                         client_name = resultSet.getString("client_name");
@@ -127,16 +128,8 @@ public class Request {
                         date_start = resultSet.getDate("date_start").toString();
                         date_finish_plan = resultSet.getDate("date_finish_plan").toString();
 
-                        responsible_repairer_name = database.stringListQuery("m.name",
-                                "FROM assignments a JOIN members m ON a.member_id = m.id",
-                                "a.id_request = " + id + " AND is_responsible = true",
-                                "m.name").get(0);
-
-                        additional_repairer_name = database.stringListQuery("m.name",
-                                "FROM assignments a JOIN members m ON a.member_id = m.id",
-                                "a.id_request = " + id + " AND is_responsible = false",
-                                "m.name").get(0);
-
+                        responsible_repairer_name = resultSet.getString("responsible_repairer_name");
+                        additional_repairer_name = resultSet.getString("additional_repairer_name");
                     }
                 }
             }
@@ -146,7 +139,56 @@ public class Request {
         }
     }
 
+
     public int getId() {
         return id;
+    }
+
+    public String getEquip_type() {
+        return equip_type;
+    }
+
+    public String getProblem_desc() {
+        return problem_desc;
+    }
+
+    public String getClient_name() {
+        return client_name;
+    }
+
+    public String getClient_phone() {
+        return client_phone;
+    }
+
+    public String getEquip_num() {
+        return equip_num;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public String getDate_start() {
+        return date_start;
+    }
+
+    public String getDate_finish_plan() {
+        return date_finish_plan;
+    }
+
+    public String getRequest_comments() {
+        return request_comments;
+    }
+
+    public String getResponsible_repairer_name() {
+        return responsible_repairer_name;
+    }
+
+    public String getAdditional_repairer_name() {
+        return additional_repairer_name;
     }
 }

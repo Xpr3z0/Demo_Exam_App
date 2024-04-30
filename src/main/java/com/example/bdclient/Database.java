@@ -111,6 +111,65 @@ public class Database {
     }
 
 
+    public ArrayList<String> stringListQuery(String neededColumn, String sql) {
+        Connection connection = null;
+        ResultSet resultSet;
+
+        ArrayList<String> finalList = new ArrayList<>();
+        try {
+
+            connection = DriverManager.getConnection(URL, ROOT_LOGIN, ROOT_PASS);
+            PreparedStatement statement = connection.prepareStatement(sql.trim());
+            resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                finalList.add(resultSet.getString(neededColumn));
+            }
+            System.out.println(finalList);
+            resultSet.close();
+            statement.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return finalList;
+    }
+
+    public ArrayList<Object> executeQueryAndGetColumnValues(String query) {
+        ArrayList<Object> columnValues = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            while (resultSet.next()) {
+                for (int i = 1; i <= columnCount; i++) {
+                    Object value = resultSet.getObject(i);
+                    columnValues.add(value);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка выполнения запроса к базе данных", e);
+        }
+
+        return columnValues;
+    }
+
+
     // TODO: возможно не надо
     public boolean updateTable(String selectedTable, String columnChangeName, String newRecord, String columnSearchName, String columnSearch) {
         Connection connection = null;
