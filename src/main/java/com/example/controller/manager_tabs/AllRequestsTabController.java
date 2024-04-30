@@ -105,7 +105,6 @@ public class AllRequestsTabController implements Initializable {
         requestMap.clear();
 
         String query = "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
-
         ArrayList<String> idList = database.stringListQuery("id", query);
 
         for (String idStr : idList) {

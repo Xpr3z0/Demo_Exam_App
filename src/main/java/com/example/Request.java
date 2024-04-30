@@ -124,9 +124,10 @@ public class Request {
                         status = resultSet.getString("status");
                         priority = resultSet.getString("priority");
 
-                        // Преобразуем даты из SQL Date в строковый формат для отображения
-                        date_start = resultSet.getDate("date_start").toString();
-                        date_finish_plan = resultSet.getDate("date_finish_plan").toString();
+                        // Используется getString вместо getDate, чтобы избежать NullPointerException в случае,
+                        // когда эти данные у заявки ещё отсутствуют
+                        date_start = resultSet.getString("date_start");
+                        date_finish_plan = resultSet.getString("date_finish_plan");
 
                         responsible_repairer_name = resultSet.getString("responsible_repairer_name");
                         additional_repairer_name = resultSet.getString("additional_repairer_name");
@@ -137,6 +138,18 @@ public class Request {
             e.printStackTrace();
             MyAlert.showErrorAlert("Ошибка при получении информации о заявке.");
         }
+    }
+
+
+    public boolean deleteRequestInDB() {
+        String idStr = String.valueOf(id);
+        database.deleteQuery("assignments", "id_request", idStr);
+        database.deleteQuery("request_processes", "request_id", idStr);
+        database.deleteQuery("request_regs", "request_id", idStr);
+        boolean deletedSuccessfully = database.deleteQuery("requests", "id", idStr);
+
+        // TODO: мб проверку условий доделать
+        return deletedSuccessfully;
     }
 
 

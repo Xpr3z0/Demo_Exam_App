@@ -5,12 +5,10 @@ import com.example.bdclient.Database;
 import com.example.controller.MainViewController;
 import com.example.controller.dialogs.MyAlert;
 import com.example.controller.dialogs.UniversalFormDialog;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -18,9 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
 public class ResponsibleRequestsTabController implements Initializable {
-    public VBox statesVBox;
-    public VBox priorityVBox;
-    public TextField dateFilterTF;
     public TextField idFilterTF;
 
     @FXML
@@ -158,7 +153,7 @@ public class ResponsibleRequestsTabController implements Initializable {
     }
 
 
-    public void onActionCreateOrCheckReport(ActionEvent actionEvent) {
+    public void onActionCreateOrCheckReport() {
 
         if (createOrCheckReportBtn.getText().equals("Посмотреть отчёт")) {
 
@@ -175,7 +170,6 @@ public class ResponsibleRequestsTabController implements Initializable {
                                 "Причина неисправности: " + reportValues.get(5) + "\n\n" +
                                 "Оказанная помощь: " + reportValues.get(6);
                 MyAlert.showInfoAlert(report);
-
             } else {
                 MyAlert.showInfoAlert("Отчёт для заявки №" + currentRequestNumber + " отсутствует");
             }

@@ -1,6 +1,6 @@
 package com.example.controller.dialogs;
 
-import com.sun.org.apache.xerces.internal.impl.dv.DatatypeValidator;
+import com.example.bdclient.Database;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -11,12 +11,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import com.example.bdclient.Database;
 
-import javax.xml.crypto.Data;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +31,7 @@ public class UniversalFormDialog {
     public void showDialog() {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Добавление записи");
 
         BorderPane root = new BorderPane();
 
@@ -72,7 +68,7 @@ public class UniversalFormDialog {
         root.setCenter(gridPane);
         root.setBottom(buttonsBox);
 
-        Scene scene = new Scene(root, 400, 300);
+        Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.showAndWait();
     }
