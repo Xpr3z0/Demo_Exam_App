@@ -80,9 +80,11 @@ public class AllRequestsTabController implements Initializable {
                 repairRequestListView.getItems().clear();
                 repairRequestListView.getItems().add(String.valueOf(requestId));
                 filterApplied = true;
+                showMoreInfo(requestId);
 
             } else {
                 filterApplied = false;
+                moreInfoPane.setVisible(false);
                 clearFilters();
                 MyAlert.showErrorAlert(String.format("Заявка с номером %d не найдена", requestId));
             }
@@ -139,7 +141,7 @@ public class AllRequestsTabController implements Initializable {
 
 
     public void onActionCheckReport() {
-        ArrayList<Object> reportValues = database.executeQueryAndGetColumnValues(
+        ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
                 "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
 
         if (reportValues != null && reportValues.size() > 0) {

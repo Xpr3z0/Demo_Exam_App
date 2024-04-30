@@ -98,7 +98,6 @@ public class FinishedRequestTabController implements Initializable {
 
     @FXML
     public void onActionRefresh(ActionEvent event) {
-        repairRequestListView.getItems().clear();
         loadRepairRequests();
     }
 

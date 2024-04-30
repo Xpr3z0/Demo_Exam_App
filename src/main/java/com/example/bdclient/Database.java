@@ -67,6 +67,29 @@ public class Database {
     }
 
 
+    // Метод для получения названий всех полей определенной таблицы
+    public ArrayList<String> getAllTableColumnNames(String tableName) {
+        ArrayList<String> columnNames = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
+            DatabaseMetaData metaData = connection.getMetaData();
+
+            // Получаем метаданные таблицы
+            try (ResultSet columns = metaData.getColumns(null, null, tableName, null)) {
+                while (columns.next()) {
+                    // Получаем название столбца (поля)
+                    String columnName = columns.getString("COLUMN_NAME");
+                    columnNames.add(columnName);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Обработка ошибки доступа к базе данных
+        }
+
+        return columnNames;
+    }
+
+
 
     public ArrayList<String> stringListQuery(String neededColumn, String table, String where, String orderBy) {
         Connection connection = null;
@@ -145,8 +168,8 @@ public class Database {
         return finalList;
     }
 
-    public ArrayList<Object> executeQueryAndGetColumnValues(String query) {
-        ArrayList<Object> columnValues = new ArrayList<>();
+    public ArrayList<String> executeQueryAndGetColumnValues(String query) {
+        ArrayList<String> columnValues = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
              Statement statement = connection.createStatement();
@@ -157,8 +180,8 @@ public class Database {
 
             while (resultSet.next()) {
                 for (int i = 1; i <= columnCount; i++) {
-                    Object value = resultSet.getObject(i);
-                    columnValues.add(value);
+                    String value = resultSet.getString(i); // Получаем значение как строку
+                    columnValues.add(value); // Добавляем в список
                 }
             }
 
@@ -168,6 +191,7 @@ public class Database {
 
         return columnValues;
     }
+
 
 
     // TODO: возможно не надо

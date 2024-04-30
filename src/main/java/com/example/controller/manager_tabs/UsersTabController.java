@@ -1,22 +1,18 @@
 package com.example.controller.manager_tabs;
 
 import com.example.bdclient.Database;
-import com.example.controller.dialogs.DialogAddMembersController;
+import com.example.controller.dialogs.UniversalFormDialog;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
-import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -125,23 +121,11 @@ public class UsersTabController implements Initializable {
         }
     }
 
-    public void onActionAdd(ActionEvent actionEvent) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/dialogs/DialogAddMembers.fxml"));
-            DialogAddMembersController dialogAddMembersController = new DialogAddMembersController();
-            loader.setController(dialogAddMembersController);
-
-            // Передача текущего контроллера как userData
-            Stage stage = new Stage();
-            stage.setTitle("Добавление нового сотрудника");
-            stage.setScene(new Scene(loader.load()));
-            stage.setUserData(this); // передаем UsersTabController
-
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void onActionAdd() {
+        ArrayList<String> attrList = database.getAllTableColumnNames("members");
+        attrList.remove(0);
+        new UniversalFormDialog("members", attrList);
+        updateTable();
     }
-
 }
 
