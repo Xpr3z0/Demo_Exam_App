@@ -53,9 +53,13 @@ public class UsersTabController implements Initializable {
             if (resultSet != null) {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
                 columnNames = new ArrayList<>();
-                for (int i = 0; i < resultSetMetaData.getColumnCount(); ++i)
+
+                for (int i = 0; i < resultSetMetaData.getColumnCount(); ++i) {
                     columnNames.add(resultSetMetaData.getColumnName(i + 1));
+                }
+
                 ObservableList<List<String>> data = FXCollections.observableArrayList();
+
                 while (resultSet.next()) {
                     List<String> row = new ArrayList<>();
                     for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
@@ -63,6 +67,7 @@ public class UsersTabController implements Initializable {
                     }
                     data.add(row);
                 }
+
                 tableView.setItems(data);
             }
         } catch (SQLException e) {
@@ -78,21 +83,12 @@ public class UsersTabController implements Initializable {
             TableColumn column = new TableColumn(columnNames.get(i));
             final int finalI = i;
 
+
+
             column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<List<String>, String>, ObservableValue<String>>() {
                 @Override
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<List<String>, String> data) {
                     return new ReadOnlyStringWrapper(data.getValue().get(finalI));
-                }
-            });
-
-            column.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
-                public void handle(TableColumn.CellEditEvent event) {
-                    TablePosition tablePosition = event.getTablePosition();
-                    String columnSearch = ((List) tableView.getItems().get(tablePosition.getRow())).get(0).toString();
-                    String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
-                    if (!database.updateTable(selectedTable, event.getTableColumn().getText(), event.getNewValue().toString(), columnSearchName, columnSearch)) {
-                        new Alert(Alert.AlertType.WARNING, "Данные не изменены.").showAndWait();
-                    }
                 }
             });
 

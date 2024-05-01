@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane prefHeight="1800.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.repairer_tabs.ResponsibleRequestsTabController">
+<BorderPane prefHeight="1800.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
    <center>
       <SplitPane dividerPositions="0.5" minHeight="200.0" minWidth="200.0" BorderPane.alignment="CENTER">
          <items>
@@ -25,7 +25,7 @@
                <center>
                   <ScrollPane fx:id="moreInfoScrollPane" fitToWidth="true" focusTraversable="false" prefHeight="200.0" prefWidth="200.0">
                      <content>
-                        <VBox spacing="20.0">
+                        <VBox fx:id="infoVBox" spacing="20.0">
                            <children>
                               <Label fx:id="requestNumberLabel" text="Заявка №123456">
                                  <font>
@@ -76,13 +76,17 @@
                                  </font>
                               </Label>
                               <TextArea fx:id="commentsTextArea" layoutX="30.0" layoutY="338.0" maxWidth="300.0" prefHeight="100.0" prefWidth="200.0" wrapText="true" />
-                              <Separator layoutX="30.0" layoutY="768.0" prefWidth="200.0" />
-                              <Label layoutX="30.0" layoutY="814.0" text="Статус заявки">
-                                 <font>
-                                    <Font name="Arial Bold" size="14.0" />
-                                 </font>
-                              </Label>
-                              <ChoiceBox fx:id="stateChoice" prefWidth="150.0" />
+                              <VBox fx:id="stateVBox" spacing="20.0">
+                                 <children>
+                                    <Separator prefWidth="200.0" />
+                                    <Label text="Статус заявки">
+                                       <font>
+                                          <Font name="Arial Bold" size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <ChoiceBox fx:id="stateChoice" prefWidth="150.0" />
+                                 </children>
+                              </VBox>
                               <Separator layoutX="30.0" layoutY="589.0" prefWidth="200.0" />
                               <Label layoutX="30.0" layoutY="791.0" text="Приоритет">
                                  <font>
@@ -96,7 +100,7 @@
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <ChoiceBox fx:id="responsibleRepairerChoice" disable="true" maxWidth="300.0" minWidth="-Infinity" prefWidth="300.0" />
+                              <ChoiceBox fx:id="responsibleRepairerChoice" maxWidth="300.0" minWidth="-Infinity" prefWidth="300.0" />
                               <Separator layoutX="30.0" layoutY="872.0" prefWidth="200.0" />
                               <Label layoutX="30.0" layoutY="999.0" text="Помощник">
                                  <font>

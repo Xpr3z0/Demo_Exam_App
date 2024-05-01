@@ -35,9 +35,9 @@ public class StatisticsTabController {
     }
 
     private void calculateStatistics() {
-        Connection connection = null;
-        try {
-            connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
+
+        try (Connection connection = DriverManager.getConnection(
+                Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
 
             int numOfCompletedRequests = getNumOfCompletedRequests(connection);
             numOfCompletedRequestsTF.setText(String.valueOf(numOfCompletedRequests));
@@ -49,14 +49,6 @@ public class StatisticsTabController {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 

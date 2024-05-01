@@ -1,21 +1,21 @@
-package com.example.controller.repairer_tabs;
+package com.example.controller;
 
 import com.example.Request;
 import com.example.bdclient.Database;
-import com.example.controller.MainViewController;
 import com.example.controller.dialogs.MyAlert;
 import com.example.controller.dialogs.UniversalFormDialog;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
-public class ResponsibleRequestsTabController implements Initializable {
+public class UniversalRequestsTabController implements Initializable {
     public TextField idFilterTF;
 
     @FXML
@@ -29,6 +29,8 @@ public class ResponsibleRequestsTabController implements Initializable {
     public TextArea commentsTextArea;
     public ScrollPane moreInfoScrollPane;
     public BorderPane moreInfoPane;
+    public VBox infoVBox;
+    public VBox stateVBox;
     public ChoiceBox<String> stateChoice;
     public ChoiceBox<String> responsibleRepairerChoice;
     public ChoiceBox<String> additionalRepairerChoice;
@@ -42,11 +44,15 @@ public class ResponsibleRequestsTabController implements Initializable {
 
     private Database database;
     private int currentRequestNumber = -1;
+    private String role;
 
 
     private LinkedHashMap<Integer, Request> requestMap;
     private boolean filterApplied = false;
 
+    public UniversalRequestsTabController(String role) {
+        this.role = role;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -56,6 +62,7 @@ public class ResponsibleRequestsTabController implements Initializable {
         moreInfoPane.setVisible(false);
         createOrCheckReportBtn.setVisible(false);
 
+        setUnavailableFields();
         loadRepairRequests();
 
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
@@ -76,6 +83,20 @@ public class ResponsibleRequestsTabController implements Initializable {
                 showMoreInfo(currentRequestNumber);
             }
         });
+    }
+
+    private void setUnavailableFields() {
+        if (role.equals("resp_repairer")) {
+            responsibleRepairerChoice.setDisable(true);
+        } else if (role.equals("addit_repairer")) {
+            stateChoice.setDisable(true);
+            priorityChoice.setDisable(true);
+            responsibleRepairerChoice.setDisable(true);
+            additionalRepairerChoice.setDisable(true);
+            finishDateTF.setEditable(false);
+        } else if (role.equals("manager_new")) {
+            infoVBox.getChildren().remove(stateVBox);
+        }
     }
 
     @FXML
@@ -106,24 +127,51 @@ public class ResponsibleRequestsTabController implements Initializable {
         repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
         requestMap.clear();
 
-        String query = "SELECT r.id " +
-                "FROM requests r " +
-                "JOIN assignments a ON r.id = a.id_request " +
-                "WHERE r.status != 'Новая' " +
-                "AND a.member_id = " + MainViewController.userID + " " +
-                "AND a.is_responsible = true " +
-                "ORDER BY r.id";
+        String query = getQueryForRole();
+        if (query != null) {
+            ArrayList<String> idList = database.stringListQuery("id", query);
 
-        ArrayList<String> idList = database.stringListQuery("id", query);
+            for (String idStr : idList) {
+                int id = Integer.parseInt(idStr);
+                requestMap.put(id, new Request(id));
+                repairRequestListView.getItems().add(idStr);
+            }
 
-        for (String idStr : idList) {
-            int id = Integer.parseInt(idStr);
-            requestMap.put(id, new Request(id));
-            repairRequestListView.getItems().add(idStr);
+            if (filterApplied) {
+                applyFilters();
+            }
+
+        } else {
+            MyAlert.showErrorAlert("Ошибка: роль " + role + " не найдена");
         }
+    }
 
-        if (filterApplied) {
-            applyFilters();
+    private String getQueryForRole() {
+        if (role.equals("manager")) {
+            return "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
+
+        } else if (role.equals("manager_new")) {
+            return "SELECT id FROM requests WHERE status = 'Новая' ORDER BY id";
+
+        } else if (role.equals("resp_repairer")) {
+            return "SELECT r.id " +
+                    "FROM requests r " +
+                    "JOIN assignments a ON r.id = a.id_request " +
+                    "WHERE r.status != 'Новая' " +
+                    "AND a.member_id = " + MainViewController.userID + " " +
+                    "AND a.is_responsible = true " +
+                    "ORDER BY r.id";
+
+        } else if (role.equals("addit_repairer")) {
+            return "SELECT r.id " +
+                    "FROM requests r " +
+                    "JOIN assignments a ON r.id = a.id_request " +
+                    "WHERE r.status != 'Новая' " +
+                    "AND a.member_id = " + MainViewController.userID + " " +
+                    "AND a.is_responsible = false " +
+                    "ORDER BY r.id";
+        } else {
+            return null;
         }
     }
 
@@ -131,6 +179,7 @@ public class ResponsibleRequestsTabController implements Initializable {
     @FXML
     public void clearFilters() {
         idFilterTF.clear();
+        loadRepairRequests();
     }
 
     @FXML
@@ -140,16 +189,29 @@ public class ResponsibleRequestsTabController implements Initializable {
 
 
     public void onActionSave() {
+
+        String stateValue;
+        if (role.equals("manager_new")) {
+            stateValue = "В работе";
+        } else {
+            stateValue = stateChoice.getValue();
+        }
+
         requestMap.get(currentRequestNumber).updateRequestInDB(
                 equipSerialField.getText(),
                 equipTypeField.getText(),
                 descriptionTextArea.getText(),
                 commentsTextArea.getText(),
-                stateChoice.getValue(),
+                stateValue,
                 priorityChoice.getValue(),
                 finishDateTF.getText(),
                 responsibleRepairerChoice.getValue(),
                 additionalRepairerChoice.getValue());
+
+        if (role.equals("manager_new")) {
+            moreInfoPane.setVisible(false);
+            loadRepairRequests();
+        }
     }
 
 
@@ -191,35 +253,40 @@ public class ResponsibleRequestsTabController implements Initializable {
         clientPhoneLabel.setText("Телефон: " + request.getClient_phone());
         equipSerialField.setText(request.getEquip_num());
         commentsTextArea.setText(request.getRequest_comments());
-        stateChoice.setValue(request.getStatus());
-        priorityChoice.setValue(request.getPriority());
-
-        // Преобразуем даты из SQL Date в строковый формат для отображения
         registerDateTF.setText(request.getDate_start());
-        finishDateTF.setText(request.getDate_finish_plan());
+
+        if (role.equals("manager_new")) {
+            finishDateTF.setText("");
+            priorityChoice.setValue(null);
+            responsibleRepairerChoice.setValue(null);
+            additionalRepairerChoice.setValue("Нет");
+        } else {
+            stateChoice.setValue(request.getStatus());
+            finishDateTF.setText(request.getDate_finish_plan());
+            priorityChoice.setValue(request.getPriority());
+            responsibleRepairerChoice.setValue(request.getResponsible_repairer_name());
+            additionalRepairerChoice.setValue(request.getAdditional_repairer_name());
+        }
 
         // Отображение кнопки для проверки отчета в зависимости от состояния
         String currentState = request.getStatus();
-
-
         if (currentState.equals("Выполнено") || currentState.equals("Закрыта")) {
-            ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
-                    "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
 
-            if (reportValues != null && reportValues.size() > 0) {
-                createOrCheckReportBtn.setText("Посмотреть отчёт");
-            } else {
-                createOrCheckReportBtn.setText("Создать отчёт");
+            if (role.equals("resp_repairer")) {
+                ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
+                        "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
+
+                if (reportValues != null && reportValues.size() > 0) {
+                    createOrCheckReportBtn.setText("Посмотреть отчёт");
+                } else {
+                    createOrCheckReportBtn.setText("Создать отчёт");
+                }
             }
 
             createOrCheckReportBtn.setVisible(true);
         } else {
             createOrCheckReportBtn.setVisible(false);
         }
-
-        responsibleRepairerChoice.setValue(request.getResponsible_repairer_name());
-        additionalRepairerChoice.setValue(request.getAdditional_repairer_name());
-
 
         moreInfoPane.setVisible(true);
     }
