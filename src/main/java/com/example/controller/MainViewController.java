@@ -15,56 +15,46 @@ public class MainViewController implements Initializable {
     public static int userID;
     @FXML
     public TabPane mainPane;
+
+
     public MainViewController(String role, int userID) {
         MainViewController.role = role;
         MainViewController.userID = userID;
     }
+
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         mainPane.getTabs().clear();
 
         if (role.equals("operator")) {
-            addTab("Новая заявка",      "/view/operator_tabs/AddRequestTab.fxml");
-            addTab("Готово к выдаче",   "/view/operator_tabs/FinishedRequestsTab.fxml");
+            addTab("Новая заявка",      "/view/operator_tabs/AddRequestTab.fxml", null);
+            addTab("Готово к выдаче",   "/view/operator_tabs/FinishedRequestsTab.fxml", null);
 
         } else if (role.equals("manager")) {
-            addTabWithController("Новые заявки",  "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager_new"));
-            addTabWithController("Все заявки",    "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager"));
-            addTab("Пользователи",  "/view/manager_tabs/UsersTab.fxml");
-            addTab("Статистика",    "/view/manager_tabs/StatisticsTab.fxml");
+            addTab("Новые заявки",  "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager_new"));
+            addTab("Все заявки",    "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager"));
+            addTab("Пользователи",  "/view/UniversalTableTab.fxml", new UniversalTableTabController("members"));
+            addTab("Статистика",    "/view/manager_tabs/StatisticsTab.fxml", null);
 
         } else if (role.equals("repairer")) {
-            addTabWithController("Ответственные заявки",  "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("resp_repairer"));
-            addTabWithController("Обычные заявки",        "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("addit_repairer"));
-            addTab("Заказ запчастей",       "/view/repairer_tabs/OrdersTab.fxml");
+            addTab("Ответственные заявки",  "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("resp_repairer"));
+            addTab("Обычные заявки",        "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("addit_repairer"));
+            addTab("Заказ запчастей",       "/view/UniversalTableTab.fxml", new UniversalTableTabController("orders"));
         }
     }
 
-    /**
-     * Метод для добавления вкладок на главное окно (TabPane)
-     * @param title Надпись на вкладке
-     * @param pathToFXML Путь к файлу-макету вкладки
-     * **/
-    private void addTab(String title, String pathToFXML) {
-        Tab newRequestTab = new Tab(title);
-        try {
-            newRequestTab.setStyle("-fx-font-family: Arial; -fx-font-size: 14;");
-            if (!pathToFXML.equals("")) {
-                newRequestTab.setContent(new FXMLLoader(getClass().getResource(pathToFXML)).load());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        mainPane.getTabs().add(newRequestTab);
-    }
 
-    private void addTabWithController(String title, String pathToFXML, Object controller) {
+
+    private void addTab(String title, String pathToFXML, Object controller) {
         Tab newRequestTab = new Tab(title);
         try {
             newRequestTab.setStyle("-fx-font-family: Arial; -fx-font-size: 14;");
             if (!pathToFXML.equals("")) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(pathToFXML));
-                loader.setController(controller); // Установка контроллера
+                if (controller != null) {
+                    loader.setController(controller); // Установка контроллера
+                }
                 newRequestTab.setContent(loader.load());
             }
         } catch (IOException e) {
@@ -72,5 +62,4 @@ public class MainViewController implements Initializable {
         }
         mainPane.getTabs().add(newRequestTab);
     }
-
 }

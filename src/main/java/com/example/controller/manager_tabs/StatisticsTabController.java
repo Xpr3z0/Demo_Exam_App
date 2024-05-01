@@ -10,6 +10,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 
 public class StatisticsTabController {
@@ -28,65 +29,42 @@ public class StatisticsTabController {
 
     @FXML
     private TableColumn<FaultType, Integer> faultCountColumn;
+    private Database database;
 
     public void initialize() {
+        database = Database.getInstance();
         calculateStatistics();
         setupFaultsTable();
     }
 
     private void calculateStatistics() {
+        numOfCompletedRequestsTF.setText(database.singleValueQuery("SELECT COUNT(*) FROM reports"));
 
-        try (Connection connection = DriverManager.getConnection(
-                Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
+        double avgTime = Double.parseDouble(database.singleValueQuery("SELECT AVG(time) FROM reports"));
+        avgTimeTF.setText(String.format("%.2f", avgTime));
 
-            int numOfCompletedRequests = getNumOfCompletedRequests(connection);
-            numOfCompletedRequestsTF.setText(String.valueOf(numOfCompletedRequests));
-
-            double avgTime = getAverageTime(connection);
-            avgTimeTF.setText(String.format("%.2f", avgTime));
-
-            fillFaultsTable(connection);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        fillFaultsTable();
     }
 
-    private int getNumOfCompletedRequests(Connection connection) throws SQLException {
-        int numOfCompletedRequests = 0;
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM reports")) {
-            if (resultSet.next()) {
-                numOfCompletedRequests = resultSet.getInt(1);
-            }
-        }
-        return numOfCompletedRequests;
-    }
 
-    private double getAverageTime(Connection connection) throws SQLException {
-        double avgTime = 0.0;
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT AVG(time) FROM reports")) {
-            if (resultSet.next()) {
-                avgTime = resultSet.getDouble(1);
-            }
-        }
-        return avgTime;
-    }
-
-    private void fillFaultsTable(Connection connection) throws SQLException {
+    private void fillFaultsTable()  {
         ObservableList<FaultType> faultTypes = FXCollections.observableArrayList();
 
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT repair_type, COUNT(*) AS count FROM reports GROUP BY repair_type");
-        while (resultSet.next()) {
-            String repairType = resultSet.getString("repair_type");
-            int count = resultSet.getInt("count");
-            FaultType faultType = new FaultType(repairType, count);
-            faultTypes.add(faultType);
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
+            try (Statement statement = connection.createStatement()) {
+                try (ResultSet resultSet = statement.executeQuery(
+                        "SELECT repair_type, COUNT(*) AS count FROM reports GROUP BY repair_type")) {
+                    while (resultSet.next()) {
+                        String repairType = resultSet.getString("repair_type");
+                        int count = resultSet.getInt("count");
+                        FaultType faultType = new FaultType(repairType, count);
+                        faultTypes.add(faultType);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        resultSet.close();
-        statement.close();
 
         // Заполняем таблицу данными
         typesOfFaultsTable.getItems().setAll(faultTypes);

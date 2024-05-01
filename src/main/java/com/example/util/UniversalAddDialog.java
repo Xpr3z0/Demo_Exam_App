@@ -1,7 +1,5 @@
 package com.example.util;
 
-import com.example.util.Database;
-import com.example.util.MyAlert;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -16,13 +14,13 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UniversalFormDialog {
+public class UniversalAddDialog {
 
     private List<String> fields;
     private Database database;
     private String table;
 
-    public UniversalFormDialog(String table, ArrayList<String> fields) {
+    public UniversalAddDialog(String table, ArrayList<String> fields) {
         database = Database.getInstance();
         this.table = table;
         this.fields = fields;

@@ -1,5 +1,6 @@
 package com.example.util;
 
+// Используется классом StatisticsTabController
 public class FaultType {
     private String repairType;
     private int count;

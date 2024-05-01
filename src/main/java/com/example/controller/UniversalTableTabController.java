@@ -1,16 +1,16 @@
-package com.example.controller.repairer_tabs;
+package com.example.controller;
 
 import com.example.util.Database;
 import com.example.util.MyAlert;
-import com.example.util.UniversalFormDialog;
+import com.example.util.UniversalAddDialog;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 
@@ -22,13 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class OrdersTabController implements Initializable {
-    public TableView tableView;
-    public Label lblLogin;
+public class UniversalTableTabController implements Initializable {
+    public TableView<List<String>> tableView;
     private Database database;
-    private String selectedTable = "orders";
+    private String selectedTable;
     private List<String> columnNames;
     public Button addNewBtn;
+
+    public UniversalTableTabController(String table) {
+        selectedTable = table;
+    }
 
     public void updateTable() {
         cleaningTable();
@@ -41,6 +44,11 @@ public class OrdersTabController implements Initializable {
         database = Database.getInstance();
         if (!selectedTable.isEmpty()) {
             updateTable();
+            if (selectedTable.equals("members")) {
+                addNewBtn.setText("Добавить сотрудника");
+            } else if (selectedTable.equals("orders")) {
+                addNewBtn.setText("Добавить заказ");
+            }
         }
     }
 
@@ -55,9 +63,13 @@ public class OrdersTabController implements Initializable {
             if (resultSet != null) {
                 ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
                 columnNames = new ArrayList<>();
-                for (int i = 0; i < resultSetMetaData.getColumnCount(); ++i)
+
+                for (int i = 0; i < resultSetMetaData.getColumnCount(); ++i) {
                     columnNames.add(resultSetMetaData.getColumnName(i + 1));
+                }
+
                 ObservableList<List<String>> data = FXCollections.observableArrayList();
+
                 while (resultSet.next()) {
                     List<String> row = new ArrayList<>();
                     for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
@@ -65,6 +77,7 @@ public class OrdersTabController implements Initializable {
                     }
                     data.add(row);
                 }
+
                 tableView.setItems(data);
             }
         } catch (SQLException e) {
@@ -77,24 +90,13 @@ public class OrdersTabController implements Initializable {
         tableView.getColumns().clear();
 
         for (int i = 0; i < columnNames.size(); ++i) {
-            TableColumn column = new TableColumn(columnNames.get(i));
+            TableColumn<List<String>, String> column = new TableColumn<>(columnNames.get(i));
             final int finalI = i;
 
             column.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<List<String>, String>, ObservableValue<String>>() {
                 @Override
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<List<String>, String> data) {
                     return new ReadOnlyStringWrapper(data.getValue().get(finalI));
-                }
-            });
-
-            column.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent>() {
-                public void handle(TableColumn.CellEditEvent event) {
-                    TablePosition tablePosition = event.getTablePosition();
-                    String columnSearch = ((List) tableView.getItems().get(tablePosition.getRow())).get(0).toString();
-                    String columnSearchName = ((TableColumn) tableView.getColumns().get(0)).getText();
-                    if (!database.updateTable(selectedTable, event.getTableColumn().getText(), event.getNewValue().toString(), columnSearchName, columnSearch)) {
-                        new Alert(Alert.AlertType.WARNING, "Данные не изменены.").showAndWait();
-                    }
                 }
             });
 
@@ -112,7 +114,7 @@ public class OrdersTabController implements Initializable {
 
 
     // TODO: сделать провеку перед удалением
-    public void onActionDelete(ActionEvent actionEvent) {
+    public void onActionDelete() {
         int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
             String columnSearch = ((List) tableView.getItems().get(selectedIndex)).get(0).toString();
@@ -124,12 +126,11 @@ public class OrdersTabController implements Initializable {
         }
     }
 
-    public void onActionAdd(ActionEvent actionEvent) {
-        ArrayList<String> attrList = database.getAllTableColumnNames("orders");
+    public void onActionAdd() {
+        ArrayList<String> attrList = database.getAllTableColumnNames(selectedTable);
         attrList.remove(0);
-        new UniversalFormDialog("orders", attrList);
+        new UniversalAddDialog(selectedTable, attrList);
         updateTable();
     }
-
 }
 

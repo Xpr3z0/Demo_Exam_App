@@ -3,7 +3,7 @@ package com.example.controller;
 import com.example.util.Request;
 import com.example.util.Database;
 import com.example.util.MyAlert;
-import com.example.util.UniversalFormDialog;
+import com.example.util.UniversalAddDialog;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -211,6 +211,8 @@ public class UniversalRequestsTabController implements Initializable {
         if (role.equals("manager_new")) {
             moreInfoPane.setVisible(false);
             loadRepairRequests();
+        } else {
+            showMoreInfo(currentRequestNumber);
         }
     }
 
@@ -237,7 +239,7 @@ public class UniversalRequestsTabController implements Initializable {
             }
 
         } else {
-            new UniversalFormDialog("reports", database.getAllTableColumnNames("reports"));
+            new UniversalAddDialog("reports", database.getAllTableColumnNames("reports"));
             showMoreInfo(currentRequestNumber);
         }
 

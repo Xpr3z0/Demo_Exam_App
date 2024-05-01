@@ -168,6 +168,23 @@ public class Database {
         return finalList;
     }
 
+    public String singleValueQuery(String sql)  {
+
+        String resultValue = "";
+
+        try (Connection connection = DriverManager.getConnection(URL, ROOT_LOGIN, ROOT_PASS)) {
+            try (Statement statement = connection.createStatement();
+                 ResultSet resultSet = statement.executeQuery(sql)) {
+                if (resultSet.next()) {
+                    resultValue = resultSet.getString(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultValue;
+    }
+
     public ArrayList<String> executeQueryAndGetColumnValues(String query) {
         ArrayList<String> columnValues = new ArrayList<>();
 
