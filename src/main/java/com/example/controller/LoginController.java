@@ -1,7 +1,7 @@
 package com.example.controller;
 
-import com.example.bdclient.Database;
-import com.example.controller.dialogs.MyAlert;
+import com.example.util.Database;
+import com.example.util.MyAlert;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

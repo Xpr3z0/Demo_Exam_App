@@ -1,8 +1,8 @@
 package com.example.controller.repairer_tabs;
 
-import com.example.bdclient.Database;
-import com.example.controller.dialogs.MyAlert;
-import com.example.controller.dialogs.UniversalFormDialog;
+import com.example.util.Database;
+import com.example.util.MyAlert;
+import com.example.util.UniversalFormDialog;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;

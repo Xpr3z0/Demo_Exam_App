@@ -1,6 +1,7 @@
-package com.example.controller.dialogs;
+package com.example.util;
 
-import com.example.bdclient.Database;
+import com.example.util.Database;
+import com.example.util.MyAlert;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

@@ -1,7 +1,4 @@
-package com.example;
-
-import com.example.bdclient.Database;
-import com.example.controller.dialogs.MyAlert;
+package com.example.util;
 
 import java.sql.*;
 

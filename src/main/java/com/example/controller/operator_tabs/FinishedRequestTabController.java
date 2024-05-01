@@ -1,9 +1,9 @@
 package com.example.controller.operator_tabs;
 
 
-import com.example.Request;
-import com.example.bdclient.Database;
-import com.example.controller.dialogs.MyAlert;
+import com.example.util.Request;
+import com.example.util.Database;
+import com.example.util.MyAlert;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;

@@ -1,7 +1,7 @@
 package com.example.controller.manager_tabs;
 
-import com.example.bdclient.Database;
-import com.example.controller.manager_tabs.util.FaultType;
+import com.example.util.Database;
+import com.example.util.FaultType;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

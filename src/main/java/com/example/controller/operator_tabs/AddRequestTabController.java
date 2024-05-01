@@ -1,7 +1,7 @@
 package com.example.controller.operator_tabs;
 
-import com.example.bdclient.Database;
-import com.example.controller.dialogs.MyAlert;
+import com.example.util.Database;
+import com.example.util.MyAlert;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;

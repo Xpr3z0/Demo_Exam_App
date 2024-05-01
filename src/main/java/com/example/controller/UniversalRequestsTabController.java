@@ -1,9 +1,9 @@
 package com.example.controller;
 
-import com.example.Request;
-import com.example.bdclient.Database;
-import com.example.controller.dialogs.MyAlert;
-import com.example.controller.dialogs.UniversalFormDialog;
+import com.example.util.Request;
+import com.example.util.Database;
+import com.example.util.MyAlert;
+import com.example.util.UniversalFormDialog;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;

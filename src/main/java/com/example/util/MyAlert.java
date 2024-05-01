@@ -1,4 +1,4 @@
-package com.example.controller.dialogs;
+package com.example.util;
 
 import javafx.scene.control.Alert;
 

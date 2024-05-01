@@ -1,4 +1,4 @@
-package com.example.bdclient;
+package com.example.util;
 
 import java.sql.*;
 import java.util.ArrayList;

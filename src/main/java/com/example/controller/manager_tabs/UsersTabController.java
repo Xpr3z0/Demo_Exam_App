@@ -1,13 +1,12 @@
 package com.example.controller.manager_tabs;
 
-import com.example.bdclient.Database;
-import com.example.controller.dialogs.UniversalFormDialog;
+import com.example.util.Database;
+import com.example.util.UniversalFormDialog;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
