@@ -86,6 +86,7 @@ public class Database {
             e.printStackTrace(); // Обработка ошибки доступа к базе данных
         }
 
+        System.out.printf("Заголовки таблицы %s: %s", tableName, columnNames);
         return columnNames;
     }
 
@@ -112,7 +113,6 @@ public class Database {
             while (resultSet.next()) {
                 finalList.add(resultSet.getString(neededColumn));
             }
-            System.out.println(finalList);
             resultSet.close();
             statement.close();
 
@@ -130,6 +130,7 @@ public class Database {
             }
         }
 
+        System.out.printf("список %s из таблицы %s: %s", neededColumn, table, finalList);
         return finalList;
     }
 
@@ -147,7 +148,6 @@ public class Database {
             while (resultSet.next()) {
                 finalList.add(resultSet.getString(neededColumn));
             }
-            System.out.println(finalList);
             resultSet.close();
             statement.close();
 
@@ -164,6 +164,8 @@ public class Database {
                 }
             }
         }
+
+        System.out.printf("список %s: %s", neededColumn, finalList);
 
         return finalList;
     }
@@ -182,6 +184,8 @@ public class Database {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        System.out.printf("Получено значение: ", resultValue);
         return resultValue;
     }
 
@@ -206,6 +210,7 @@ public class Database {
             throw new RuntimeException("Ошибка выполнения запроса к базе данных", e);
         }
 
+        System.out.printf("Значения записи: ", columnValues);
         return columnValues;
     }
 
@@ -261,13 +266,16 @@ public class Database {
                     "DELETE FROM " + selectedTable + " WHERE " + columnSearchName + " = " + columnSearch);
 
             if (statement.executeUpdate() != -1) {
+                System.out.printf("Удалены записи из таблицы %s где %s = %s", selectedTable, columnSearchName, columnSearch);
                 return true;
             } else {
+                System.out.println("Ни одна запись не была удалена");
                 return false;
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("Ни одна запись не была удалена");
             return false;
 
         } finally {
@@ -290,8 +298,10 @@ public class Database {
                     "UPDATE " + table + " SET " + set + " WHERE " + where);
 
             if (preparedStatement.executeUpdate() > 0) {
+                System.out.printf("В таблице %s обновлены значения %s где %s", table, set, where);
                 return true;
             } else {
+                System.out.printf("Ни одна запись в таблице %s не была обновлена", table);
                 return false;
             }
 
@@ -317,8 +327,10 @@ public class Database {
             PreparedStatement statement = connection.prepareStatement(sql);
 
             if (statement.executeUpdate() != -1) {
+                System.out.println("Запрос выполнен успешно: " + sql);
                 return true;
             } else {
+                System.out.println("Ошибка при выполнении запроса: " + sql);
                 return false;
             }
 
