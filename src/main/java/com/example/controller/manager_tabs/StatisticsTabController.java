@@ -40,7 +40,12 @@ public class StatisticsTabController {
     private void calculateStatistics() {
         numOfCompletedRequestsTF.setText(database.singleValueQuery("SELECT COUNT(*) FROM reports"));
 
-        double avgTime = Double.parseDouble(database.singleValueQuery("SELECT AVG(time) FROM reports"));
+        double avgTime = 0;
+        try {
+            avgTime = Double.parseDouble(database.singleValueQuery("SELECT AVG(time) FROM reports"));
+        } catch (NullPointerException e) {
+            System.out.println("Отчёты отсутствуют");;
+        }
         avgTimeTF.setText(String.format("%.2f", avgTime));
 
         fillFaultsTable();
