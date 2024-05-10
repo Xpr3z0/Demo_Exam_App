@@ -1,6 +1,7 @@
 package com.example.controller.operator_tabs;
 
 
+import com.example.controller.ListItemController;
 import com.example.util.Request;
 import com.example.util.Database;
 import com.example.util.MyAlert;
@@ -9,7 +10,9 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -17,6 +20,7 @@ import javafx.scene.layout.BorderPane;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -75,6 +79,30 @@ public class FinishedRequestTabController implements Initializable {
             requestMap.put(id, new Request(id));
             repairRequestListView.getItems().add(idStr);
         }
+
+        repairRequestListView.setCellFactory(param -> {
+            return new ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (item == null || empty) {
+                        setGraphic(null);
+                    } else {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
+                        try {
+                            Parent root = loader.load();
+                            ListItemController controller = loader.getController();
+                            controller.setRequestNumber(Integer.parseInt(item));
+                            setGraphic(root);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            setGraphic(null);
+                        }
+                    }
+                }
+            };
+        });
     }
 
     @FXML

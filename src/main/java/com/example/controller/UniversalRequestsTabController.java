@@ -5,11 +5,14 @@ import com.example.util.Database;
 import com.example.util.MyAlert;
 import com.example.util.UniversalAddDialog;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -140,6 +143,31 @@ public class UniversalRequestsTabController implements Initializable {
             if (filterApplied) {
                 applyFilters();
             }
+
+            // Вот код, который вы хотите добавить, чтобы установить фабрику ячеек для repairRequestListView
+            repairRequestListView.setCellFactory(param -> {
+                return new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item == null || empty) {
+                            setGraphic(null);
+                        } else {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
+                            try {
+                                Parent root = loader.load();
+                                ListItemController controller = loader.getController();
+                                controller.setRequestNumber(Integer.parseInt(item));
+                                setGraphic(root);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                setGraphic(null);
+                            }
+                        }
+                    }
+                };
+            });
 
         } else {
             MyAlert.showErrorAlert("Ошибка: роль " + role + " не найдена");
