@@ -33,7 +33,7 @@ public class MainViewController implements Initializable {
 
         } else if (role.equals("manager")) {
             addTab("Новые заявки",  "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager_new"));
-            addTab("Все заявки",    "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager"));
+            addTab("Принятые заявки",    "/view/UniversalRequestsTab.fxml", new UniversalRequestsTabController("manager"));
             addTab("Пользователи",  "/view/UniversalTableTab.fxml", new UniversalTableTabController("members"));
             addTab("Статистика",    "/view/manager_tabs/StatisticsTab.fxml", null);
 
