@@ -121,7 +121,7 @@
                                     <Font name="Arial Bold" size="14.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="finishDateTF" />
+                              <TextField fx:id="finishDateTF" promptText="2000-01-01" />
                               <Separator layoutX="30.0" layoutY="976.0" prefWidth="200.0" />
                               <HBox alignment="CENTER" spacing="20.0" />
                            </children>
