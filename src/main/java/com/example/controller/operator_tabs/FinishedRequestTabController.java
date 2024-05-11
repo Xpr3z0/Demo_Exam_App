@@ -33,8 +33,6 @@ public class FinishedRequestTabController implements Initializable {
 
     @FXML
     private ListView<String> repairRequestListView;
-
-    // Метки для отображения деталей заявки
     public Label requestNumberLabel;
     public TextField equipTypeField;
     public TextArea descriptionTextArea;

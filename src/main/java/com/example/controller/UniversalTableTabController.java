@@ -163,14 +163,17 @@ public class UniversalTableTabController implements Initializable {
     public void onActionDelete() {
         int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
-            String columnSearch = ((List<?>) tableView.getItems().get(selectedIndex)).get(0).toString();
-            String columnSearchName = ((TableColumn<?, ?>) tableView.getColumns().get(0)).getText();
-            // Удаление записи из базы данных
-            database.deleteQuery(selectedTable, columnSearchName, columnSearch);
-            // Обновление таблицы
-            tableView.getItems().remove(selectedIndex);
-            updateTable();
-            MyAlert.showInfoAlert("Запись успешно удалена");
+            boolean actionConfirmed = MyAlert.showWarningConfirmation("Удаление записи", "Удалить выбранную запись? Это действие нельзя будет отменить");
+            if (actionConfirmed) {
+                String columnSearch = ((List<?>) tableView.getItems().get(selectedIndex)).get(0).toString();
+                String columnSearchName = ((TableColumn<?, ?>) tableView.getColumns().get(0)).getText();
+                // Удаление записи из базы данных
+                database.deleteQuery(selectedTable, columnSearchName, columnSearch);
+                // Обновление таблицы
+                tableView.getItems().remove(selectedIndex);
+                updateTable();
+                MyAlert.showInfoAlert("Запись успешно удалена");
+            }
         }
     }
 
