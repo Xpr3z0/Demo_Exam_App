@@ -78,6 +78,14 @@ public class AddRequestTabController implements Initializable {
      */
     @FXML
     public void onActionAdd() {
+        // Проверка на заполненность всех полей
+        if (clientNameField.getText().isEmpty() || clientPhoneField.getText().isEmpty() ||
+                serialNumberField.getText().isEmpty() || equipTypeField.getText().isEmpty() ||
+                descTextArea.getText().isEmpty()) {
+            MyAlert.showErrorAlert("Все поля должны быть заполнены!");
+            return;
+        }
+
         // Формируем SQL-запрос для вставки новой заявки в таблицу requests
         String insertRequestsSql = String.format(
                 "INSERT INTO requests (equip_num, equip_type, problem_desc, status) VALUES ('%s', '%s', '%s', '%s')",
@@ -99,5 +107,6 @@ public class AddRequestTabController implements Initializable {
 
         // Отображаем уведомление о добавлении новой заявки
         MyAlert.showInfoAlert("Запись добавлена успешно.");
+        clearFields(); // Очищаем поля после успешного добавления
     }
 }
