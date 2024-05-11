@@ -10,9 +10,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import javax.xml.crypto.Data;
 import java.sql.*;
 
+/**
+ * Контроллер для вкладки "Статистика" в приложении.
+ * Отвечает за отображение статистических данных о заявках на ремонт.
+ */
 public class StatisticsTabController {
 
     @FXML
@@ -29,30 +32,44 @@ public class StatisticsTabController {
 
     @FXML
     private TableColumn<FaultType, Integer> faultCountColumn;
+
     private Database database;
 
+    /**
+     * Инициализирует контроллер, устанавливая соединение с базой данных и запуская начальные расчеты.
+     */
     public void initialize() {
         database = Database.getInstance();
         calculateStatistics();
         setupFaultsTable();
     }
 
+    /**
+     * Выполняет расчет и отображение статистических данных:
+     * - общее количество завершенных заявок;
+     * - среднее время обработки заявок.
+     */
     private void calculateStatistics() {
+        // Получаем количество завершенных заявок
         numOfCompletedRequestsTF.setText(database.singleValueQuery("SELECT COUNT(*) FROM reports"));
 
+        // Вычисляем среднее время обработки
         double avgTime = 0;
         try {
             avgTime = Double.parseDouble(database.singleValueQuery("SELECT AVG(time) FROM reports"));
         } catch (NullPointerException e) {
-            System.out.println("Отчёты отсутствуют");;
+            System.out.println("Отчёты отсутствуют");
         }
         avgTimeTF.setText(String.format("%.2f", avgTime));
 
+        // Заполняем таблицу данных о типах неисправностей
         fillFaultsTable();
     }
 
-
-    private void fillFaultsTable()  {
+    /**
+     * Заполняет таблицу статистикой типов неисправностей из базы данных.
+     */
+    private void fillFaultsTable() {
         ObservableList<FaultType> faultTypes = FXCollections.observableArrayList();
 
         try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
@@ -75,17 +92,20 @@ public class StatisticsTabController {
         typesOfFaultsTable.getItems().setAll(faultTypes);
     }
 
-
+    /**
+     * Обработчик для кнопки обновления.
+     * Перезапускает расчет статистики при нажатии на кнопку "Обновить".
+     */
     @FXML
     private void onRefresh() {
         calculateStatistics();
     }
 
+    /**
+     * Настраивает столбцы таблицы для отображения данных о типах неисправностей.
+     */
     private void setupFaultsTable() {
         faultTypeColumn.setCellValueFactory(new PropertyValueFactory<>("repairType"));
         faultCountColumn.setCellValueFactory(new PropertyValueFactory<>("count"));
     }
-
 }
-
-

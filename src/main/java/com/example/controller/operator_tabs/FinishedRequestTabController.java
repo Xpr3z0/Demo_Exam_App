@@ -1,6 +1,5 @@
 package com.example.controller.operator_tabs;
 
-
 import com.example.controller.ListItemController;
 import com.example.util.Request;
 import com.example.util.Database;
@@ -26,10 +25,16 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
+/**
+ * Контроллер вкладки "Готово к выдаче" для оператора.
+ * Управляет отображением и обработкой завершенных заявок, включая QR-код.
+ */
 public class FinishedRequestTabController implements Initializable {
 
     @FXML
     private ListView<String> repairRequestListView;
+
+    // Метки для отображения деталей заявки
     public Label requestNumberLabel;
     public TextField equipTypeField;
     public TextArea descriptionTextArea;
@@ -37,25 +42,48 @@ public class FinishedRequestTabController implements Initializable {
     public Label clientPhoneLabel;
     public TextField equipSerialField;
     public TextArea commentsTextArea;
+
+    // Дополнительная информация об активной заявке
     public BorderPane moreInfoPane;
+
+    // Кнопки для обновления и закрытия заявки
     public Button refreshListBtn;
+
+    // Отображение QR-кода
+    public ImageView qrImageView;
+
+    // Объект базы данных для выполнения запросов
     private Database database;
+
+    // Текущий выбранный номер заявки
     private int currentRequestNumber = -1;
 
+    // URL, закодированный в QR-коде
     private final String QR_CODE_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    public ImageView qrImageView;
+
+    // Карта завершенных заявок
     private LinkedHashMap<Integer, Request> requestMap;
 
-
+    /**
+     * Метод инициализации контроллера.
+     * @param location URL местоположения
+     * @param resources Ресурсный пакет для локализации
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         database = Database.getInstance();
         requestMap = new LinkedHashMap<>();
 
+        // По умолчанию панель с информацией скрыта
         moreInfoPane.setVisible(false);
+
+        // Загрузка QR-кода
         qrImageView.setImage(generateQRCode(QR_CODE_URL));
+
+        // Загрузка списка завершенных заявок
         loadRepairRequests();
 
+        // Обработка клика на элементе списка заявок
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1) {
@@ -66,51 +94,62 @@ public class FinishedRequestTabController implements Initializable {
         });
     }
 
-
+    /**
+     * Загрузка списка завершенных заявок из базы данных.
+     * Отображает заявки в ListView с использованием настраиваемого формата.
+     */
     private void loadRepairRequests() {
         repairRequestListView.getItems().clear();
         requestMap.clear();
 
+        // Получаем список завершенных заявок
         ArrayList<String> idList = database.stringListQuery(
                 "id", "requests", "status = 'Выполнено'", "id");
 
+        // Заполняем отображаемый список и карту заявок
         for (String idStr : idList) {
             int id = Integer.parseInt(idStr);
             requestMap.put(id, new Request(id));
             repairRequestListView.getItems().add(idStr);
         }
 
-        repairRequestListView.setCellFactory(param -> {
-            return new ListCell<String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
+        // Настраиваем отображение списка
+        repairRequestListView.setCellFactory(param -> new ListCell<String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
 
-                    if (item == null || empty) {
-                        setGraphic(null);
-                    } else {
+                if (item == null || empty) {
+                    setGraphic(null);
+                } else {
+                    try {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/ListItem.fxml"));
-                        try {
-                            Parent root = loader.load();
-                            ListItemController controller = loader.getController();
-                            controller.setRequestNumber(Integer.parseInt(item));
-                            setGraphic(root);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            setGraphic(null);
-                        }
+                        Parent root = loader.load();
+                        ListItemController controller = loader.getController();
+                        controller.setRequestNumber(Integer.parseInt(item));
+                        setGraphic(root);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        setGraphic(null);
                     }
                 }
-            };
+            }
         });
     }
 
+    /**
+     * Обработчик действия обновления списка заявок.
+     * Вызывается при нажатии кнопки обновления.
+     */
     @FXML
     public void onActionRefresh() {
         loadRepairRequests();
     }
 
-
+    /**
+     * Обработчик закрытия выбранной заявки.
+     * Обновляет статус заявки в базе данных и обновляет список.
+     */
     public void onActionCloseRequest() {
         int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
@@ -120,6 +159,10 @@ public class FinishedRequestTabController implements Initializable {
         }
     }
 
+    /**
+     * Отображение подробной информации о выбранной заявке.
+     * @param requestId Идентификатор заявки для отображения
+     */
     private void showMoreInfo(int requestId) {
         Request request = requestMap.get(requestId);
 
@@ -134,24 +177,25 @@ public class FinishedRequestTabController implements Initializable {
         moreInfoPane.setVisible(true);
     }
 
-
-
+    /**
+     * Генерирует изображение QR-кода из заданного URL.
+     * @param url URL, который будет закодирован в QR-код
+     * @return Изображение QR-кода или null при ошибке
+     */
     private Image generateQRCode(String url) {
         try {
-            // Используем MultiFormatWriter из ZXing для генерации QR-кода
+            // Создаем BitMatrix для QR-кода
             BitMatrix bitMatrix = new MultiFormatWriter().encode(
                     url, BarcodeFormat.QR_CODE, 300, 300);
 
-            // Преобразование BitMatrix в Image
+            // Конвертируем BitMatrix в изображение
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", out);
 
             return new Image(new ByteArrayInputStream(out.toByteArray()));
-
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-
 }

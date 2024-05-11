@@ -18,9 +18,18 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
+/**
+ * Контроллер для универсальной вкладки заявок. Отображает и управляет заявками на ремонт.
+ * С помощью этого контроллера формируются вкладки "Принятые заявки" и "Новые заявки" у менеджера,
+ * а также "Ответственные заявки" и "Обычные заявки" у исполнителя.
+ *
+ * От роли пользователя зависит доступность определённых функций.
+ */
 public class UniversalRequestsTabController implements Initializable {
+    // Поле ввода для фильтрации по ID заявки
     public TextField idFilterTF;
 
+    // Компоненты FXML
     @FXML
     private ListView<String> repairRequestListView;
     public Label requestNumberLabel;
@@ -42,32 +51,45 @@ public class UniversalRequestsTabController implements Initializable {
     public TextField finishDateTF;
 
     public Button refreshListBtn;
-
     public Button createOrCheckReportBtn;
 
+    // Экземпляры базы данных и текущего запроса
     private Database database;
     private int currentRequestNumber = -1;
     private String role;
 
-
+    // Карта заявок
     private LinkedHashMap<Integer, Request> requestMap;
     private boolean filterApplied = false;
 
+    /**
+     * Конструктор, принимающий роль пользователя.
+     *
+     * @param role Роль текущего пользователя, например, "manager", "resp_repairer" и т.д.
+     */
     public UniversalRequestsTabController(String role) {
         this.role = role;
     }
 
+    /**
+     * Инициализирует контроллер и настраивает интерфейс согласно роли пользователя.
+     *
+     * @param location URL для загрузки ресурсов (не используется)
+     * @param resources Набор ресурсов для локализации (не используется)
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Инициализация базы данных и карты заявок
         database = Database.getInstance();
         requestMap = new LinkedHashMap<>();
 
+        // Начальные настройки интерфейса
         moreInfoPane.setVisible(false);
         createOrCheckReportBtn.setVisible(false);
-
         setUnavailableFields();
         loadRepairRequests();
 
+        // Инициализация элементов выбора
         priorityChoice.getItems().addAll("Срочный", "Высокий", "Нормальный", "Низкий");
         stateChoice.getItems().addAll("В работе", "Выполнено", "В ожидании", "Закрыта");
 
@@ -77,6 +99,7 @@ public class UniversalRequestsTabController implements Initializable {
         additionalRepairerChoice.getItems().addAll(repairersList);
         additionalRepairerChoice.setValue("Нет");
 
+        // Настройка выбора элементов в списке заявок
         repairRequestListView.setOnMouseClicked(event -> {
             int selectedIndex = repairRequestListView.getSelectionModel().getSelectedIndex();
             if (selectedIndex != -1) {
@@ -88,6 +111,9 @@ public class UniversalRequestsTabController implements Initializable {
         });
     }
 
+    /**
+     * Настраивает недоступные поля в зависимости от роли пользователя.
+     */
     private void setUnavailableFields() {
         if (role.equals("resp_repairer")) {
             responsibleRepairerChoice.setDisable(true);
@@ -102,6 +128,9 @@ public class UniversalRequestsTabController implements Initializable {
         }
     }
 
+    /**
+     * Применяет фильтры для поиска заявок по ID.
+     */
     @FXML
     public void applyFilters() {
         if (!idFilterTF.getText().trim().equals("")) {
@@ -124,16 +153,20 @@ public class UniversalRequestsTabController implements Initializable {
         }
     }
 
-
-
+    /**
+     * Загружает и отображает список заявок в зависимости от роли пользователя.
+     */
     public void loadRepairRequests() {
-        repairRequestListView.getItems().clear(); // Очищаем ListView перед загрузкой новых данных
+        // Очистка предыдущих данных
+        repairRequestListView.getItems().clear();
         requestMap.clear();
 
+        // Получение запросов в зависимости от роли пользователя
         String query = getQueryForRole();
         if (query != null) {
             ArrayList<String> idList = database.stringListQuery("id", query);
 
+            // Заполнение списка заявок
             for (String idStr : idList) {
                 int id = Integer.parseInt(idStr);
                 requestMap.put(id, new Request(id));
@@ -144,7 +177,7 @@ public class UniversalRequestsTabController implements Initializable {
                 applyFilters();
             }
 
-            // Вот код, который вы хотите добавить, чтобы установить фабрику ячеек для repairRequestListView
+            // Установка фабрики ячеек для отображения информации о каждой заявке
             repairRequestListView.setCellFactory(param -> {
                 return new ListCell<String>() {
                     @Override
@@ -174,6 +207,11 @@ public class UniversalRequestsTabController implements Initializable {
         }
     }
 
+    /**
+     * Формирует SQL-запрос для получения списка заявок в зависимости от роли пользователя.
+     *
+     * @return SQL-запрос или null, если роль не поддерживается.
+     */
     private String getQueryForRole() {
         if (role.equals("manager")) {
             return "SELECT id FROM requests WHERE status != 'Новая' ORDER BY id";
@@ -203,21 +241,28 @@ public class UniversalRequestsTabController implements Initializable {
         }
     }
 
-
+    /**
+     * Очищает все примененные фильтры и заново загружает список заявок.
+     */
     @FXML
     public void clearFilters() {
         idFilterTF.clear();
         loadRepairRequests();
     }
 
+    /**
+     * Перезагружает список заявок.
+     */
     @FXML
     public void onActionRefresh() {
         loadRepairRequests();
     }
 
-
+    /**
+     * Сохраняет изменения в заявке на ремонт.
+     */
     public void onActionSave() {
-
+        // Выбор статуса заявки в зависимости от роли
         String stateValue;
         if (role.equals("manager_new")) {
             stateValue = "В работе";
@@ -225,6 +270,7 @@ public class UniversalRequestsTabController implements Initializable {
             stateValue = stateChoice.getValue();
         }
 
+        // Обновление данных в базе данных
         requestMap.get(currentRequestNumber).updateRequestInDB(
                 equipSerialField.getText(),
                 equipTypeField.getText(),
@@ -244,23 +290,20 @@ public class UniversalRequestsTabController implements Initializable {
         }
     }
 
-
+    /**
+     * Открывает или создает отчет для текущей заявки на ремонт.
+     */
     public void onActionCreateOrCheckReport() {
-
+        // Проверка наличия отчета или создание нового
         if (createOrCheckReportBtn.getText().equals("Посмотреть отчёт")) {
-
             ArrayList<String> reportValues = database.executeQueryAndGetColumnValues(
                     "SELECT * FROM reports WHERE request_id = " + currentRequestNumber);
 
             if (reportValues != null && reportValues.size() > 0) {
-                String report =
-                        "Номер заявки: " + reportValues.get(0) + "\n\n" +
-                                "Тип ремонта: " + reportValues.get(1) + "\n\n" +
-                                "Время выполнения, дней: " + reportValues.get(2) + "\n\n" +
-                                "Стоимость: " + reportValues.get(3) + "\n\n" +
-                                "Ресурсы: " + reportValues.get(4) + "\n\n" +
-                                "Причина неисправности: " + reportValues.get(5) + "\n\n" +
-                                "Оказанная помощь: " + reportValues.get(6);
+                String report = String.format(
+                        "Номер заявки: %s\n\nТип ремонта: %s\n\nВремя выполнения, дней: %s\n\nСтоимость: %s\n\nРесурсы: %s\n\nПричина неисправности: %s\n\nОказанная помощь: %s",
+                        reportValues.get(0), reportValues.get(1), reportValues.get(2), reportValues.get(3),
+                        reportValues.get(4), reportValues.get(5), reportValues.get(6));
                 MyAlert.showInfoAlert(report);
             } else {
                 MyAlert.showInfoAlert("Отчёт для заявки №" + currentRequestNumber + " отсутствует");
@@ -273,6 +316,11 @@ public class UniversalRequestsTabController implements Initializable {
 
     }
 
+    /**
+     * Отображает более подробную информацию о заявке на ремонт.
+     *
+     * @param requestId Идентификатор заявки для отображения.
+     */
     public void showMoreInfo(int requestId) {
         Request request = requestMap.get(requestId);
 

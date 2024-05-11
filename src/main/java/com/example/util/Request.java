@@ -2,6 +2,9 @@ package com.example.util;
 
 import java.sql.*;
 
+/**
+ * Класс для представления и управления запросами на ремонт оборудования в базе данных.
+ */
 public class Request {
     int id;
     String equip_type;
@@ -19,13 +22,31 @@ public class Request {
 
     Database database;
 
-
+    /**
+     * Конструктор для создания объекта заявки с заданным идентификатором.
+     * Инициализирует экземпляр базы данных и загружает информацию о заявке из базы данных.
+     *
+     * @param id идентификатор заявки.
+     */
     public Request(int id) {
         this.id = id;
         database = Database.getInstance();
         loadInfoFromDB();
     }
 
+    /**
+     * Обновляет информацию о заявке в базе данных с учетом переданных данных.
+     *
+     * @param equip_num                  серийный номер оборудования.
+     * @param equip_type                 тип оборудования.
+     * @param problem_desc               описание проблемы.
+     * @param request_comments           комментарии к заявке.
+     * @param status                     текущий статус заявки.
+     * @param priority                   приоритет заявки.
+     * @param date_finish_plan           планируемая дата завершения.
+     * @param responsible_repairer_name  имя ответственного ремонтника.
+     * @param additional_repairer_name   имя дополнительного ремонтника.
+     */
     public void updateRequestInDB(String equip_num,
                                   String equip_type,
                                   String problem_desc,
@@ -54,7 +75,6 @@ public class Request {
                 "WHERE id = %d", equip_num, equip_type, problem_desc, request_comments, status, id);
         database.simpleQuery(updateRequestsQuery);
 
-
         // Обновляем запись в таблице request_processes
         String insertOrUpdateProcessQuery = String.format(
                 "INSERT INTO request_processes (request_id, priority, date_finish_plan) " +
@@ -65,7 +85,6 @@ public class Request {
 
         database.simpleQuery(insertOrUpdateProcessQuery);
 
-
         // Добавляем или обновляем запись в таблице assignments для ответственного исполнителя
         String updateRespAssignQuery = String.format(
                 "INSERT INTO assignments (id_request, member_id, is_responsible) " +
@@ -74,10 +93,8 @@ public class Request {
                         "SET member_id = EXCLUDED.member_id", id, responsible_repairer_name, true);
         database.simpleQuery(updateRespAssignQuery);
 
-
         if (additional_repairer_name.equals("Нет")) {
             database.simpleQuery("DELETE FROM assignments WHERE is_responsible = false AND id_request = " + id);
-
         } else {
             // Обновляем запись в таблице assignments для дополнительного исполнителя
             String updateAdditAssignQuery = String.format(
@@ -91,6 +108,9 @@ public class Request {
         MyAlert.showInfoAlert("Информация по заявке обновлена успешно.");
     }
 
+    /**
+     * Загружает информацию о заявке из базы данных по идентификатору заявки.
+     */
     public void loadInfoFromDB() {
         database = Database.getInstance();
         try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
@@ -137,7 +157,11 @@ public class Request {
         }
     }
 
-
+    /**
+     * Удаляет запись о заявке в базе данных, вместе с соответствующими записями в связанных таблицах.
+     *
+     * @return true, если заявка успешно удалена, иначе false.
+     */
     public boolean deleteRequestInDB() {
         String idStr = String.valueOf(id);
         database.deleteQuery("assignments", "id_request", idStr);
@@ -148,7 +172,6 @@ public class Request {
         // TODO: мб проверку условий доделать
         return deletedSuccessfully;
     }
-
 
     public int getId() {
         return id;

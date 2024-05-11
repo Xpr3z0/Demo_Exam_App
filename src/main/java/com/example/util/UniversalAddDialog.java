@@ -14,12 +14,21 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Класс UniversalAddDialog обеспечивает универсальное диалоговое окно для добавления записей в базу данных.
+ */
 public class UniversalAddDialog {
 
     private List<String> fields;
     private Database database;
     private String table;
 
+    /**
+     * Конструктор, который принимает имя таблицы и список полей для добавления новой записи.
+     *
+     * @param table  имя таблицы, в которую будет добавлена запись.
+     * @param fields список названий полей, которые будут добавлены.
+     */
     public UniversalAddDialog(String table, ArrayList<String> fields) {
         database = Database.getInstance();
         this.table = table;
@@ -27,6 +36,9 @@ public class UniversalAddDialog {
         showDialog();
     }
 
+    /**
+     * Отображает диалоговое окно для добавления новой записи в базу данных.
+     */
     public void showDialog() {
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -39,6 +51,7 @@ public class UniversalAddDialog {
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(20));
 
+        // Добавление меток и текстовых полей для каждого из полей таблицы.
         for (int i = 0; i < fields.size(); i++) {
             String fieldName = fields.get(i);
 
@@ -49,16 +62,19 @@ public class UniversalAddDialog {
             gridPane.add(textField, 1, i);
         }
 
+        // Создание контейнера для кнопок
         HBox buttonsBox = new HBox();
         buttonsBox.setSpacing(10);
         buttonsBox.setPadding(new Insets(20));
 
+        // Кнопка добавления, которая вызывает сохранение данных и закрывает окно
         Button addButton = new Button("Добавить");
         addButton.setOnAction(event -> {
             saveData(gridPane);
             stage.close();
         });
 
+        // Кнопка отмены, которая просто закрывает окно
         Button cancelButton = new Button("Отмена");
         cancelButton.setOnAction(event -> stage.close());
 
@@ -72,9 +88,15 @@ public class UniversalAddDialog {
         stage.showAndWait();
     }
 
+    /**
+     * Сохраняет введенные данные в базу данных, формируя SQL-запрос на основе введенных значений.
+     *
+     * @param gridPane контейнер с текстовыми полями, содержащими значения для записи в базу данных.
+     */
     private void saveData(GridPane gridPane) {
         StringBuilder sql = new StringBuilder("INSERT INTO " + table + " (");
 
+        // Формирование SQL-запроса с именами полей
         for (int i = 0; i < fields.size(); i++) {
             if (i > 0) {
                 sql.append(", ");
@@ -84,6 +106,7 @@ public class UniversalAddDialog {
 
         sql.append(") VALUES (");
 
+        // Добавление значений из текстовых полей в запрос
         for (int i = 0; i < fields.size(); i++) {
             if (i > 0) {
                 sql.append(", ");
@@ -94,8 +117,8 @@ public class UniversalAddDialog {
 
         sql.append(")");
 
+        // Выполнение запроса в базе данных
         database.simpleQuery(sql.toString());
         MyAlert.showInfoAlert("Запись добавлена успешно");
-
     }
 }
