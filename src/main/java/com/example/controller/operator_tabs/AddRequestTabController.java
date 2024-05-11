@@ -48,6 +48,7 @@ public class AddRequestTabController implements Initializable {
         database.simpleQuery(insertRequestsSql);
 
         // Получаем сгенерированный ключ (id) новой записи
+        // TODO: ОШИБКА: последнее значение (lastval) ещё не определено в этом сеансе
         int generatedId = Integer.parseInt(database.executeQueryAndGetColumnValues("SELECT LASTVAL()").get(0));
 
         // Вставка данных в таблицу request_regs
