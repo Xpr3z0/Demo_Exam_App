@@ -3,6 +3,10 @@ package com.example.util;
 import java.sql.*;
 import java.util.ArrayList;
 
+/**
+ * Класс Database предоставляет методы для доступа и управления базой данных PostgreSQL.
+ * Позволяет выполнять запросы, обновления, удаление данных и обеспечивает соединение с базой.
+ */
 public class Database {
     private static Database instance;
     public static final String URL = "jdbc:postgresql://localhost:8888/postgres";
@@ -10,6 +14,11 @@ public class Database {
     public static final String ROOT_PASS = "root";
     Connection externalConnection = null;
 
+    /**
+     * Возвращает единственный экземпляр класса Database (реализация паттерна Singleton).
+     *
+     * @return единственный экземпляр класса Database.
+     */
     public static Database getInstance() {
         if (instance == null) {
             instance = new Database();
@@ -17,6 +26,13 @@ public class Database {
         return instance;
     }
 
+    /**
+     * Проверяет возможность доступа к базе данных с заданным логином и паролем.
+     *
+     * @param login    логин пользователя.
+     * @param password пароль пользователя.
+     * @return true, если доступ успешен, иначе false.
+     */
     public boolean accessToDB(String login, String password) {
         Connection connection = null;
         try {
@@ -29,20 +45,36 @@ public class Database {
         return true;
     }
 
-
+    /**
+     * Получает соединение с базой данных.
+     *
+     * @return объект Connection.
+     * @throws SQLException если возникает ошибка соединения.
+     */
     public Connection getConnection() throws SQLException {
         externalConnection = null;
         externalConnection = DriverManager.getConnection(URL, ROOT_LOGIN, ROOT_PASS);
         return externalConnection;
     }
 
+    /**
+     * Закрывает текущее соединение с базой данных.
+     *
+     * @throws SQLException если возникает ошибка при закрытии соединения.
+     */
     public void closeConnection() throws SQLException {
         if (externalConnection != null) {
             externalConnection.close();
         }
     }
 
-
+    /**
+     * Выполняет запрос на получение всех записей из указанной таблицы с сортировкой по заданному столбцу.
+     *
+     * @param selectedTable имя таблицы, из которой требуется получить данные.
+     * @param orderBy       имя столбца, по которому производится сортировка.
+     * @return объект ResultSet с результатами запроса.
+     */
     public ResultSet getTable(String selectedTable, String orderBy) {
         Connection connection = null;
         try {
@@ -66,32 +98,41 @@ public class Database {
         }
     }
 
-
-    // Метод для получения названий всех полей определенной таблицы
+    /**
+     * Получает все названия столбцов в указанной таблице.
+     *
+     * @param tableName имя таблицы.
+     * @return список строк с названиями столбцов.
+     */
     public ArrayList<String> getAllTableColumnNames(String tableName) {
         ArrayList<String> columnNames = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
             DatabaseMetaData metaData = connection.getMetaData();
 
-            // Получаем метаданные таблицы
             try (ResultSet columns = metaData.getColumns(null, null, tableName, null)) {
                 while (columns.next()) {
-                    // Получаем название столбца (поля)
                     String columnName = columns.getString("COLUMN_NAME");
                     columnNames.add(columnName);
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // Обработка ошибки доступа к базе данных
+            e.printStackTrace();
         }
 
         System.out.printf("Заголовки таблицы %s: %s\n", tableName, columnNames);
         return columnNames;
     }
 
-
-
+    /**
+     * Выполняет запрос для получения данных в виде списка строк.
+     *
+     * @param neededColumn название требуемого столбца.
+     * @param table        название таблицы.
+     * @param where        условие фильтрации (опционально).
+     * @param orderBy      столбец для сортировки (опционально).
+     * @return список строк, соответствующий результатам запроса.
+     */
     public ArrayList<String> stringListQuery(String neededColumn, String table, String where, String orderBy) {
         Connection connection = null;
         ResultSet resultSet;
@@ -106,7 +147,6 @@ public class Database {
 
         ArrayList<String> finalList = new ArrayList<>();
         try {
-
             connection = DriverManager.getConnection(URL, ROOT_LOGIN, ROOT_PASS);
             PreparedStatement statement = connection.prepareStatement(finalQuery.trim());
             resultSet = statement.executeQuery();
@@ -134,14 +174,19 @@ public class Database {
         return finalList;
     }
 
-
+    /**
+     * Выполняет запрос по заранее подготовленной строке SQL и возвращает список значений из указанного столбца.
+     *
+     * @param neededColumn название столбца.
+     * @param sql          SQL-запрос.
+     * @return список значений из указанного столбца.
+     */
     public ArrayList<String> stringListQuery(String neededColumn, String sql) {
         Connection connection = null;
         ResultSet resultSet;
 
         ArrayList<String> finalList = new ArrayList<>();
         try {
-
             connection = DriverManager.getConnection(URL, ROOT_LOGIN, ROOT_PASS);
             PreparedStatement statement = connection.prepareStatement(sql.trim());
             resultSet = statement.executeQuery();
@@ -166,12 +211,16 @@ public class Database {
         }
 
         System.out.printf("Список %s: %s\n", neededColumn, finalList);
-
         return finalList;
     }
 
-    public String singleValueQuery(String sql)  {
-
+    /**
+     * Выполняет запрос и возвращает единственное значение из первого столбца результата.
+     *
+     * @param sql SQL-запрос.
+     * @return строковое значение из первого столбца.
+     */
+    public String singleValueQuery(String sql) {
         String resultValue = "";
 
         try (Connection connection = DriverManager.getConnection(URL, ROOT_LOGIN, ROOT_PASS)) {
@@ -189,6 +238,12 @@ public class Database {
         return resultValue;
     }
 
+    /**
+     * Выполняет запрос и возвращает все значения из результата в виде списка строк.
+     *
+     * @param query SQL-запрос.
+     * @return список значений всех столбцов в каждой записи результата.
+     */
     public ArrayList<String> executeQueryAndGetColumnValues(String query) {
         ArrayList<String> columnValues = new ArrayList<>();
 
@@ -201,8 +256,8 @@ public class Database {
 
             while (resultSet.next()) {
                 for (int i = 1; i <= columnCount; i++) {
-                    String value = resultSet.getString(i); // Получаем значение как строку
-                    columnValues.add(value); // Добавляем в список
+                    String value = resultSet.getString(i);
+                    columnValues.add(value);
                 }
             }
 
@@ -214,9 +269,16 @@ public class Database {
         return columnValues;
     }
 
-
-
-    // TODO: возможно не надо
+    /**
+     * Обновляет значения в таблице, выполняя запрос с фильтрацией по заданному столбцу.
+     *
+     * @param selectedTable    имя таблицы.
+     * @param columnChangeName имя столбца, который нужно обновить.
+     * @param newRecord        новое значение для обновления.
+     * @param columnSearchName имя столбца, по которому производится поиск.
+     * @param columnSearch     значение, по которому производится поиск.
+     * @return true, если обновление прошло успешно, иначе false.
+     */
     public boolean updateTable(String selectedTable, String columnChangeName, String newRecord, String columnSearchName, String columnSearch) {
         Connection connection = null;
         try {
@@ -248,16 +310,28 @@ public class Database {
         }
     }
 
-
-    private Object convertStringToInteger(String str){
+    /**
+     * Преобразует строку в целое число, если это возможно, иначе возвращает исходную строку.
+     *
+     * @param str исходная строка.
+     * @return объект Integer или исходная строка.
+     */
+    private Object convertStringToInteger(String str) {
         try {
             return new Integer(str);
-
         } catch (NumberFormatException e) {
             return str;
         }
     }
 
+    /**
+     * Выполняет запрос на удаление записей из таблицы, фильтруя по заданному столбцу.
+     *
+     * @param selectedTable    имя таблицы.
+     * @param columnSearchName имя столбца, по которому производится поиск.
+     * @param columnSearch     значение, по которому производится поиск.
+     * @return true, если удаление прошло успешно, иначе false.
+     */
     public boolean deleteQuery(String selectedTable, String columnSearchName, String columnSearch) {
         Connection connection = null;
         try {
@@ -266,7 +340,7 @@ public class Database {
                     "DELETE FROM " + selectedTable + " WHERE " + columnSearchName + " = " + columnSearch);
 
             if (statement.executeUpdate() != -1) {
-                System.out.printf("Удалены записи из таблицы %s где %s = %s\n", selectedTable, columnSearchName, columnSearch);
+                System.out.printf("Удалены записи из таблицы %s, где %s = %s\n", selectedTable, columnSearchName, columnSearch);
                 return true;
             } else {
                 System.out.println("Ни одна запись не была удалена");
@@ -289,6 +363,14 @@ public class Database {
         }
     }
 
+    /**
+     * Выполняет запрос на обновление данных в таблице с фильтрацией по заданному условию.
+     *
+     * @param table имя таблицы.
+     * @param set   выражение SET для обновления значений.
+     * @param where условие WHERE для фильтрации записей.
+     * @return true, если обновление прошло успешно, иначе false.
+     */
     public boolean updateQuery(String table, String set, String where) {
         Connection connection = null;
 
@@ -298,7 +380,7 @@ public class Database {
                     "UPDATE " + table + " SET " + set + " WHERE " + where);
 
             if (preparedStatement.executeUpdate() > 0) {
-                System.out.printf("В таблице %s обновлены значения %s где %s\n", table, set, where);
+                System.out.printf("В таблице %s обновлены значения %s, где %s\n", table, set, where);
                 return true;
             } else {
                 System.out.printf("Ни одна запись в таблице %s не была обновлена\n", table);
@@ -320,6 +402,12 @@ public class Database {
         }
     }
 
+    /**
+     * Выполняет простой SQL-запрос (например, на обновление или удаление данных).
+     *
+     * @param sql строка SQL-запроса.
+     * @return true, если запрос прошел успешно, иначе false.
+     */
     public boolean simpleQuery(String sql) {
         Connection connection = null;
         try {
