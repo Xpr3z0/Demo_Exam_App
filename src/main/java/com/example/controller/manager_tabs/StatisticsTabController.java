@@ -51,16 +51,19 @@ public class StatisticsTabController {
      */
     private void calculateStatistics() {
         // Получаем количество завершенных заявок
-        numOfCompletedRequestsTF.setText(database.singleValueQuery("SELECT COUNT(*) FROM reports"));
+        String numOfCompleted = database.singleValueQuery("SELECT COUNT(*) FROM reports");
+        numOfCompletedRequestsTF.setText(numOfCompleted);
 
         // Вычисляем среднее время обработки
         double avgTime = 0;
         try {
-            avgTime = Double.parseDouble(database.singleValueQuery("SELECT AVG(time) FROM reports"));
+            String avgTimeStr = database.singleValueQuery("SELECT AVG(time) FROM reports");
+            avgTime = Double.parseDouble(avgTimeStr);
         } catch (NullPointerException e) {
-            System.out.println("Отчёты отсутствуют");
+            System.out.println("Отчёты отсутствуют");;
         }
-        avgTimeTF.setText(String.format("%.2f", avgTime));
+        String formattedAvgTime = String.format("%.2f", avgTime);
+        avgTimeTF.setText(formattedAvgTime);
 
         // Заполняем таблицу данных о типах неисправностей
         fillFaultsTable();
