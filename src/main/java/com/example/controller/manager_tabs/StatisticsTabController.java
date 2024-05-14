@@ -56,8 +56,8 @@ public class StatisticsTabController {
 
         // Вычисляем среднее время обработки
         double avgTime = 0;
+        String avgTimeStr = database.singleValueQuery("SELECT AVG(time) FROM reports");
         try {
-            String avgTimeStr = database.singleValueQuery("SELECT AVG(time) FROM reports");
             avgTime = Double.parseDouble(avgTimeStr);
         } catch (NullPointerException e) {
             System.out.println("Отчёты отсутствуют");;
