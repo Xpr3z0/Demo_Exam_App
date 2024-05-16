@@ -24,10 +24,18 @@ dependencies {
     implementation name: 'zxing-javase-3.4.1'
     implementation name: 'postgresql-9.1-901-1.jdbc4'
     implementation name: 'controlsfx-8.40.14'
-//    implementation group: 'org.controlsfx', name: 'controlsfx', version: '8.40.14'
-//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-//    implementation 'postgresql:postgresql:9.1-901-1.jdbc4'
+    implementation name: 'junit-jupiter-api-5.7.0'
+    implementation name: 'mockito-core-3.6.0'
+    implementation name: 'mockito-junit-jupiter-3.6.0'
+    implementation name: 'apiguardian-api-1.1.0'
+    implementation name: 'apiguardian-api-1.1.0'
+    implementation name: 'byte-buddy-1.10.15'
+    implementation name: 'byte-buddy-agent-1.10.15'
+    implementation name: 'junit-jupiter-engine-5.7.0'
+    implementation name: 'junit-platform-commons-1.7.0'
+    implementation name: 'junit-platform-engine-1.7.0'
+    implementation name: 'objenesis-3.1'
+    implementation name: 'opentest4j-1.2.0'
 }
 
 jar {

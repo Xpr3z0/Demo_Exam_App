@@ -86,64 +86,73 @@ public class AddRequestTabController implements Initializable {
             return;
         }
 
-        Connection connection = null;
+        boolean success = false;
+        try (Connection connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS)) {
+            success = addRequest(connection, clientNameField.getText(), clientPhoneField.getText(), serialNumberField.getText(),
+                    equipTypeField.getText(), descTextArea.getText());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (success) {
+            MyAlert.showInfoAlert("Запись добавлена успешно.");
+            clearFields();
+        } else {
+            MyAlert.showErrorAlert("Ошибка при добавлении записи.");
+        }
+    }
+
+    /**
+     * Добавляет новую заявку в таблицы базы данных requests и request_regs.
+     * @param connection Подключение к базе данных
+     * @param clientName Имя клиента
+     * @param clientPhone Телефон клиента
+     * @param serialNumber Серийный номер оборудования
+     * @param equipType Тип оборудования
+     * @param problemDesc Описание проблемы
+     * @return true, если добавление прошло успешно, иначе false
+     */
+    public boolean addRequest(Connection connection, String clientName, String clientPhone, String serialNumber, String equipType, String problemDesc) {
         try {
-            connection = DriverManager.getConnection(Database.URL, Database.ROOT_LOGIN, Database.ROOT_PASS);
             connection.setAutoCommit(false); // Отключаем автокоммит для управления транзакцией
 
-            // Вставка данных в таблицу requests
             String insertRequestsSql = "INSERT INTO requests (equip_num, equip_type, problem_desc, status) VALUES (?, ?, ?, ?)";
-            PreparedStatement insertRequestsStatement = connection.prepareStatement(insertRequestsSql);
+            try (PreparedStatement insertRequestsStatement = connection.prepareStatement(insertRequestsSql)) {
+                insertRequestsStatement.setString(1, serialNumber);
+                insertRequestsStatement.setString(2, equipType);
+                insertRequestsStatement.setString(3, problemDesc);
+                insertRequestsStatement.setString(4, "Новая");
+                insertRequestsStatement.executeUpdate();
+            }
 
-            insertRequestsStatement.setString(1, serialNumberField.getText());
-            insertRequestsStatement.setString(2, equipTypeField.getText());
-            insertRequestsStatement.setString(3, descTextArea.getText());
-            insertRequestsStatement.setString(4, "Новая");
-
-            insertRequestsStatement.executeUpdate();
-
-            // Получаем сгенерированный ключ (id) новой записи
             int generatedId = -1;
-            try (PreparedStatement generatedIdStatement = connection.prepareStatement("SELECT LASTVAL()")) {
+            String generatedIdSql = "SELECT LASTVAL()";
+            try (PreparedStatement generatedIdStatement = connection.prepareStatement(generatedIdSql)) {
                 ResultSet resultSet = generatedIdStatement.executeQuery();
                 if (resultSet.next()) {
                     generatedId = resultSet.getInt(1);
                 }
             }
 
-            // Вставка данных в таблицу request_regs
             String insertRequestRegsSql = "INSERT INTO request_regs (request_id, client_name, client_phone, date_start) VALUES (?, ?, ?, ?)";
-            PreparedStatement insertRequestRegsStatement = connection.prepareStatement(insertRequestRegsSql);
-            insertRequestRegsStatement.setInt(1, generatedId); // Используем сгенерированный id
-            insertRequestRegsStatement.setString(2, clientNameField.getText());
-            insertRequestRegsStatement.setString(3, clientPhoneField.getText());
-            insertRequestRegsStatement.setDate(4, Date.valueOf(LocalDate.now())); // Пример: устанавливаем текущую дату
+            try (PreparedStatement insertRequestRegsStatement = connection.prepareStatement(insertRequestRegsSql)) {
+                insertRequestRegsStatement.setInt(1, generatedId);
+                insertRequestRegsStatement.setString(2, clientName);
+                insertRequestRegsStatement.setString(3, clientPhone);
+                insertRequestRegsStatement.setDate(4, Date.valueOf(LocalDate.now()));
+                insertRequestRegsStatement.executeUpdate();
+            }
 
-            insertRequestRegsStatement.executeUpdate();
-
-            // Завершение транзакции и фиксация изменений в базе данных
             connection.commit();
-            MyAlert.showInfoAlert("Запись добавлена успешно.");
-            clearFields();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            MyAlert.showErrorAlert("Ошибка при добавлении записи.");
-            if (connection != null) {
-                try {
-                    connection.rollback(); // Откатываем изменения в случае ошибки
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        } finally {
             try {
-                if (connection != null) {
-                    connection.setAutoCommit(true); // Включаем обратно автокоммит
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+                connection.rollback(); // Откатываем изменения в случае ошибки
+            } catch (SQLException ex) {
+                ex.printStackTrace();
             }
+            return false;
         }
     }
 }
