@@ -32,17 +32,12 @@ pass VARCHAR(50),
 role VARCHAR(50)
 );
 
--- Создание таблицы assignments с внешними ключами к request_processes (id_request) и members (member_id)
 CREATE TABLE assignments (
 id SERIAL PRIMARY KEY,
-id_request INT,
-member_id INT,
+id_request INT REFERENCES request_processes(request_id),
+member_id INT REFERENCES members(id),
 is_responsible BOOLEAN,
--- Создаем уникальное ограничение для комбинации (id_request, is_responsible)
-CONSTRAINT unique_assignment_request_responsible UNIQUE (id_request, is_responsible),
--- Внешние ключи
-CONSTRAINT fk_assignment_request_id FOREIGN KEY (id_request) REFERENCES request_processes(request_id),
-CONSTRAINT fk_assignment_member_id FOREIGN KEY (member_id) REFERENCES members(id)
+UNIQUE (id_request, is_responsible)
 );
 
 
