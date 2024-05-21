@@ -1,64 +1,64 @@
 -- Создание таблицы requests
 CREATE TABLE requests (
-id SERIAL PRIMARY KEY,
-equip_num VARCHAR(255),
-equip_type VARCHAR(255),
-problem_desc VARCHAR(255),
-request_comments TEXT, -- Оставляем как TEXT
-status VARCHAR(50)
+    id SERIAL PRIMARY KEY,
+    equip_num VARCHAR(255),
+    equip_type VARCHAR(255),
+    problem_desc VARCHAR(255),
+    request_comments TEXT, -- Оставляем как TEXT
+    status VARCHAR(50)
 );
 
 -- Создание таблицы request_regs с внешним ключом к requests (request_id)
 CREATE TABLE request_regs (
-request_id INT PRIMARY KEY REFERENCES requests(id),
-client_name VARCHAR(100),
-client_phone VARCHAR(20), -- Предполагаем максимальную длину номера телефона
-date_start DATE
+    request_id INT PRIMARY KEY REFERENCES requests(id),
+    client_name VARCHAR(100),
+    client_phone VARCHAR(20), -- Предполагаем максимальную длину номера телефона
+    date_start DATE
 );
 
 -- Создание таблицы request_processes с внешним ключом к requests (request_id)
 CREATE TABLE request_processes (
-request_id INT PRIMARY KEY REFERENCES requests(id),
-priority VARCHAR(50),
-date_finish_plan DATE
+    request_id INT PRIMARY KEY REFERENCES requests(id),
+    priority VARCHAR(50),
+    date_finish_plan DATE
 );
 
 -- Создание таблицы members
 CREATE TABLE members (
-id SERIAL PRIMARY KEY,
-name VARCHAR(100),
-login VARCHAR(50),
-pass VARCHAR(50),
-role VARCHAR(50)
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    login VARCHAR(50),
+    pass VARCHAR(50),
+    role VARCHAR(50)
 );
 
 CREATE TABLE assignments (
-id SERIAL PRIMARY KEY,
-id_request INT REFERENCES request_processes(request_id),
-member_id INT REFERENCES members(id),
-is_responsible BOOLEAN,
-UNIQUE (id_request, is_responsible)
+    id SERIAL PRIMARY KEY,
+    id_request INT REFERENCES request_processes(request_id),
+    member_id INT REFERENCES members(id),
+    is_responsible BOOLEAN,
+    UNIQUE (id_request, is_responsible)
 );
 
 
 -- Создание таблицы reports с внешним ключом к request_processes (request_id)
 CREATE TABLE reports (
-request_id INT PRIMARY KEY REFERENCES request_processes(request_id),
-repair_type VARCHAR(100),
-time INT,
-cost NUMERIC,
-resources TEXT,
-reason TEXT, -- Оставляем как TEXT
-help TEXT -- Оставляем как TEXT
+    request_id INT PRIMARY KEY REFERENCES request_processes(request_id),
+    repair_type VARCHAR(100),
+    time INT,
+    cost NUMERIC,
+    resources TEXT,
+    reason TEXT, -- Оставляем как TEXT
+    help TEXT -- Оставляем как TEXT
 );
 
 -- Создание таблицы orders с внешним ключом к request_processes (request_id)
 CREATE TABLE orders (
-id SERIAL PRIMARY KEY,
-request_id INT REFERENCES request_processes(request_id),
-resource_type VARCHAR(100),
-resource_name VARCHAR(255),
-cost NUMERIC
+    id SERIAL PRIMARY KEY,
+    request_id INT REFERENCES request_processes(request_id),
+    resource_type VARCHAR(100),
+    resource_name VARCHAR(255),
+    cost NUMERIC
 );
 
 
